@@ -1,6 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Header() {
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
     <header className="bg-white shadow-sm">
       <nav className="container mx-auto px-4 py-4">
@@ -24,9 +33,16 @@ export function Header() {
               Stats
             </Link>
 
-            <button className="btn-primary">
-              Logout
-            </button>
+            {user && (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  {user.displayName}
+                </span>
+                <button onClick={handleLogout} className="btn-primary">
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </nav>
