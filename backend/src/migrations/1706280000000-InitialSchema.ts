@@ -7,7 +7,7 @@ export class InitialSchema1706280000000 implements MigrationInterface {
     // Create users table
     await queryRunner.query(`
       CREATE TABLE "users" (
-        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+        "id" uuid NOT NULL,
         "lichess_id" character varying(50),
         "lichess_username" character varying(50),
         "google_id" character varying(255),
@@ -39,7 +39,7 @@ export class InitialSchema1706280000000 implements MigrationInterface {
     // Create puzzles table
     await queryRunner.query(`
       CREATE TABLE "puzzles" (
-        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+        "id" uuid NOT NULL,
         "lichess_puzzle_id" character varying(20) NOT NULL,
         "fen" text NOT NULL,
         "moves" text NOT NULL,
@@ -75,7 +75,7 @@ export class InitialSchema1706280000000 implements MigrationInterface {
     // Create training_sessions table
     await queryRunner.query(`
       CREATE TABLE "training_sessions" (
-        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+        "id" uuid NOT NULL,
         "user_id" uuid NOT NULL,
         "name" character varying(255),
         "themes" text[] NOT NULL DEFAULT '{}',
@@ -102,7 +102,7 @@ export class InitialSchema1706280000000 implements MigrationInterface {
     // Create puzzle_attempts table
     await queryRunner.query(`
       CREATE TABLE "puzzle_attempts" (
-        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+        "id" uuid NOT NULL,
         "user_id" uuid NOT NULL,
         "puzzle_id" uuid NOT NULL,
         "session_id" uuid,
@@ -135,7 +135,7 @@ export class InitialSchema1706280000000 implements MigrationInterface {
     // Create session_puzzles table
     await queryRunner.query(`
       CREATE TABLE "session_puzzles" (
-        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+        "id" uuid NOT NULL,
         "session_id" uuid NOT NULL,
         "puzzle_id" uuid NOT NULL,
         "order_index" integer NOT NULL,
@@ -156,7 +156,7 @@ export class InitialSchema1706280000000 implements MigrationInterface {
     // Create daily_puzzles table
     await queryRunner.query(`
       CREATE TABLE "daily_puzzles" (
-        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+        "id" uuid NOT NULL,
         "puzzle_id" uuid NOT NULL,
         "date" date NOT NULL,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
