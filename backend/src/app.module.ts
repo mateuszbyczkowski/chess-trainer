@@ -7,6 +7,7 @@ import { PuzzlesModule } from "./modules/puzzles/puzzles.module";
 import { AttemptsModule } from "./modules/attempts/attempts.module";
 import { StatsModule } from "./modules/stats/stats.module";
 import { SessionsModule } from "./modules/sessions/sessions.module";
+import { AppController } from "./app.controller";
 
 @Module({
   imports: [
@@ -27,5 +28,6 @@ import { SessionsModule } from "./modules/sessions/sessions.module";
     StatsModule,
     SessionsModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
