@@ -3,6 +3,7 @@ import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "@entities/user.entity";
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class AuthService {
@@ -36,6 +37,7 @@ export class AuthService {
 
     if (!user) {
       user = this.userRepository.create({
+        id: uuidv4(), // Generate UUID in application
         lichessId: profile.id,
         lichessUsername: profile.username,
         displayName: profile.username,
@@ -56,6 +58,7 @@ export class AuthService {
 
     if (!user) {
       user = this.userRepository.create({
+        id: uuidv4(), // Generate UUID in application
         googleId: profile.id,
         email: profile.email,
         displayName: profile.displayName || profile.email,
@@ -71,6 +74,7 @@ export class AuthService {
   async createGuestUser(): Promise<User> {
     const guestNumber = Math.floor(Math.random() * 100000);
     const user = this.userRepository.create({
+      id: uuidv4(), // Generate UUID in application
       displayName: `Guest_${guestNumber}`,
       isGuest: true,
     });
