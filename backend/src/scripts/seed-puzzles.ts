@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { join } from "path";
 import { config } from "dotenv";
+import { v4 as uuidv4 } from "uuid";
 
 // Load environment variables
 config({ path: join(__dirname, "../../.env") });
@@ -260,7 +261,10 @@ async function seedPuzzles() {
     console.log(`📥 Inserting ${samplePuzzles.length} sample puzzles...`);
 
     for (const puzzleData of samplePuzzles) {
-      await puzzleRepository.save(puzzleData);
+      await puzzleRepository.save({
+        id: uuidv4(), // Generate UUID in application
+        ...puzzleData,
+      });
     }
 
     const newCount = await puzzleRepository.count();

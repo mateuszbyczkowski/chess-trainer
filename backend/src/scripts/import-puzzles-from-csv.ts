@@ -3,6 +3,7 @@ import { join } from "path";
 import * as fs from "fs";
 import * as readline from "readline";
 import { config } from "dotenv";
+import { v4 as uuidv4 } from "uuid";
 
 // Load environment variables
 config({ path: join(__dirname, "../../.env") });
@@ -25,6 +26,7 @@ config({ path: join(__dirname, "../../.env") });
  */
 
 interface PuzzleData {
+  id: string;
   lichessPuzzleId: string;
   fen: string;
   moves: string;
@@ -139,6 +141,7 @@ async function importPuzzlesFromCSV() {
         }
 
         const puzzleData: PuzzleData = {
+          id: uuidv4(), // Generate UUID in application
           lichessPuzzleId: puzzleId,
           fen,
           moves,
