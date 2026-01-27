@@ -20,7 +20,7 @@ import { AuthProvider } from '@contexts/AuthContext';
 
 // Auth provider for Refine
 const authProvider = {
-  login: async ({ type }: { type: 'guest' | 'lichess' | 'google' }) => {
+  login: async () => {
     // Login is handled by AuthContext and LoginPage
     return { success: true };
   },
@@ -50,8 +50,8 @@ const authProvider = {
     }
     return null;
   },
-  onError: async (error: any) => {
-    if (error?.response?.status === 401) {
+  onError: async (error: Error) => {
+    if ((error as { response?: { status?: number } })?.response?.status === 401) {
       return { logout: true };
     }
     return { error };

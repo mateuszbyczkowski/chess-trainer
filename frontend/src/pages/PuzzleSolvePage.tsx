@@ -126,7 +126,7 @@ export function PuzzleSolvePage() {
             const move = tempGame.move({
               from: moveStr.substring(0, 2) as Square,
               to: moveStr.substring(2, 4) as Square,
-              promotion: moveStr[4] as any,
+              promotion: moveStr[4] as 'q' | 'r' | 'b' | 'n' | undefined,
             });
             if (move) {
               sanMoves.push(move.san);
@@ -151,7 +151,7 @@ export function PuzzleSolvePage() {
             newGame.move({
               from,
               to,
-              promotion: firstMove[4] as any,
+              promotion: firstMove[4] as 'q' | 'r' | 'b' | 'n' | undefined,
             });
             setCurrentPosition(newGame.fen());
             setLastMove({ from, to });
@@ -165,9 +165,12 @@ export function PuzzleSolvePage() {
             throw new Error(`Puzzle ${puzzleData.lichessPuzzleId} has invalid move data. Please try another puzzle.`);
           }
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to fetch puzzle:', err);
-        setError(err.message || err.response?.data?.message || 'Failed to load puzzle');
+        const errorMessage = err instanceof Error ? err.message :
+          (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          'Failed to load puzzle';
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -183,7 +186,7 @@ export function PuzzleSolvePage() {
 
     // If a piece is already selected, try to move to this square
     if (selectedSquare) {
-      const moveAttempted = makeMove(selectedSquare, square);
+      makeMove(selectedSquare, square);
       setSelectedSquare(null);
       setLegalMoves([]);
       return;
@@ -290,7 +293,7 @@ export function PuzzleSolvePage() {
       const move = currentGame.move({
         from,
         to,
-        promotion: opponentMoveString[4] as any,
+        promotion: opponentMoveString[4] as 'q' | 'r' | 'b' | 'n' | undefined,
       });
 
       if (move) {
