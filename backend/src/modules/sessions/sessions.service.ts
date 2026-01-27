@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TrainingSession, SessionPuzzle } from '@entities/index';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { TrainingSession, SessionPuzzle } from "@entities/index";
 
 @Injectable()
 export class SessionsService {
@@ -12,7 +12,10 @@ export class SessionsService {
     private readonly sessionPuzzleRepository: Repository<SessionPuzzle>,
   ) {}
 
-  async create(userId: string, data: Partial<TrainingSession>): Promise<TrainingSession> {
+  async create(
+    userId: string,
+    data: Partial<TrainingSession>,
+  ): Promise<TrainingSession> {
     const session = this.sessionRepository.create({
       userId,
       ...data,
@@ -23,7 +26,7 @@ export class SessionsService {
   async findByUser(userId: string): Promise<TrainingSession[]> {
     return this.sessionRepository.find({
       where: { userId },
-      order: { startedAt: 'DESC' },
+      order: { startedAt: "DESC" },
     });
   }
 
@@ -31,7 +34,10 @@ export class SessionsService {
     return this.sessionRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, data: Partial<TrainingSession>): Promise<TrainingSession> {
+  async update(
+    id: string,
+    data: Partial<TrainingSession>,
+  ): Promise<TrainingSession> {
     await this.sessionRepository.update(id, data);
     return this.findOne(id);
   }

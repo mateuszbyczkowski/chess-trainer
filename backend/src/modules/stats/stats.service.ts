@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PuzzleAttempt } from '@entities/index';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { PuzzleAttempt } from "@entities/index";
 
 @Injectable()
 export class StatsService {
@@ -11,14 +11,19 @@ export class StatsService {
   ) {}
 
   async getOverview(userId: string) {
-    const totalAttempts = await this.attemptRepository.count({ where: { userId } });
-    const totalSolved = await this.attemptRepository.count({ where: { userId, solved: true } });
-    const accuracy = totalAttempts > 0 ? (totalSolved / totalAttempts) * 100 : 0;
+    const totalAttempts = await this.attemptRepository.count({
+      where: { userId },
+    });
+    const totalSolved = await this.attemptRepository.count({
+      where: { userId, solved: true },
+    });
+    const accuracy =
+      totalAttempts > 0 ? (totalSolved / totalAttempts) * 100 : 0;
 
     const avgTime = await this.attemptRepository
-      .createQueryBuilder('attempt')
-      .select('AVG(attempt.timeSpentSeconds)', 'avg')
-      .where('attempt.userId = :userId', { userId })
+      .createQueryBuilder("attempt")
+      .select("AVG(attempt.timeSpentSeconds)", "avg")
+      .where("attempt.userId = :userId", { userId })
       .getRawOne();
 
     return {

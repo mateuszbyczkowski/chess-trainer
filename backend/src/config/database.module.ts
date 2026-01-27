@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { join } from 'path';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { join } from "path";
 
 @Module({
   imports: [
@@ -9,11 +9,11 @@ import { join } from 'path';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get('DATABASE_URL'),
-        entities: [join(__dirname, '../entities/**/*.entity{.ts,.js}')],
+        type: "postgres",
+        url: configService.get("DATABASE_URL"),
+        entities: [join(__dirname, "../entities/**/*.entity{.ts,.js}")],
         synchronize: false, // Use migrations instead
-        logging: configService.get('NODE_ENV') === 'development',
+        logging: configService.get("NODE_ENV") === "development",
         autoLoadEntities: true,
       }),
     }),

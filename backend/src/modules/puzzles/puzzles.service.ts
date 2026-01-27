@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Puzzle, DailyPuzzle } from '@entities/index';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Puzzle, DailyPuzzle } from "@entities/index";
 
 @Injectable()
 export class PuzzlesService {
@@ -21,28 +21,32 @@ export class PuzzlesService {
     maxRating?: number;
     themes?: string[];
   }): Promise<Puzzle | null> {
-    const query = this.puzzleRepository.createQueryBuilder('puzzle');
+    const query = this.puzzleRepository.createQueryBuilder("puzzle");
 
     if (options?.minRating) {
-      query.andWhere('puzzle.rating >= :minRating', { minRating: options.minRating });
+      query.andWhere("puzzle.rating >= :minRating", {
+        minRating: options.minRating,
+      });
     }
     if (options?.maxRating) {
-      query.andWhere('puzzle.rating <= :maxRating', { maxRating: options.maxRating });
+      query.andWhere("puzzle.rating <= :maxRating", {
+        maxRating: options.maxRating,
+      });
     }
     if (options?.themes && options.themes.length > 0) {
-      query.andWhere('puzzle.themes && :themes', { themes: options.themes });
+      query.andWhere("puzzle.themes && :themes", { themes: options.themes });
     }
 
-    query.orderBy('RANDOM()').limit(1);
+    query.orderBy("RANDOM()").limit(1);
 
     return query.getOne();
   }
 
   async getDailyPuzzle(): Promise<Puzzle | null> {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const dailyPuzzle = await this.dailyPuzzleRepository.findOne({
       where: { date: new Date(today) },
-      relations: ['puzzle'],
+      relations: ["puzzle"],
     });
 
     // If no daily puzzle is set, return a random puzzle

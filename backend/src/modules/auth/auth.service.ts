@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '@entities/user.entity';
+import { Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "@entities/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -25,7 +25,7 @@ export class AuthService {
 
     return {
       accessToken: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: "30d" }),
     };
   }
 

@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class InitialSchema1706280000000 implements MigrationInterface {
-  name = 'InitialSchema1706280000000';
+  name = "InitialSchema1706280000000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Create users table
@@ -215,13 +215,27 @@ export class InitialSchema1706280000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop foreign keys
-    await queryRunner.query(`ALTER TABLE "daily_puzzles" DROP CONSTRAINT "FK_daily_puzzles_puzzle_id"`);
-    await queryRunner.query(`ALTER TABLE "session_puzzles" DROP CONSTRAINT "FK_session_puzzles_puzzle_id"`);
-    await queryRunner.query(`ALTER TABLE "session_puzzles" DROP CONSTRAINT "FK_session_puzzles_session_id"`);
-    await queryRunner.query(`ALTER TABLE "puzzle_attempts" DROP CONSTRAINT "FK_puzzle_attempts_session_id"`);
-    await queryRunner.query(`ALTER TABLE "puzzle_attempts" DROP CONSTRAINT "FK_puzzle_attempts_puzzle_id"`);
-    await queryRunner.query(`ALTER TABLE "puzzle_attempts" DROP CONSTRAINT "FK_puzzle_attempts_user_id"`);
-    await queryRunner.query(`ALTER TABLE "training_sessions" DROP CONSTRAINT "FK_training_sessions_user_id"`);
+    await queryRunner.query(
+      `ALTER TABLE "daily_puzzles" DROP CONSTRAINT "FK_daily_puzzles_puzzle_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "session_puzzles" DROP CONSTRAINT "FK_session_puzzles_puzzle_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "session_puzzles" DROP CONSTRAINT "FK_session_puzzles_session_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "puzzle_attempts" DROP CONSTRAINT "FK_puzzle_attempts_session_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "puzzle_attempts" DROP CONSTRAINT "FK_puzzle_attempts_puzzle_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "puzzle_attempts" DROP CONSTRAINT "FK_puzzle_attempts_user_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "training_sessions" DROP CONSTRAINT "FK_training_sessions_user_id"`,
+    );
 
     // Drop tables
     await queryRunner.query(`DROP TABLE "daily_puzzles"`);
