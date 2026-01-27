@@ -141,7 +141,9 @@ export function PuzzleSolvePage() {
         });
         setSolutionMovesSan(sanMoves);
 
-        // Make the first move (opponent's move)
+        // In Lichess puzzles, moves[0] is ALWAYS the opponent's setup move
+        // The player always responds at moves[1]
+        // Auto-play the first move to set up the puzzle position
         if (moves.length > 0) {
           const firstMove = moves[0];
           const from = firstMove.substring(0, 2) as Square;
@@ -155,15 +157,23 @@ export function PuzzleSolvePage() {
             });
             setCurrentPosition(newGame.fen());
             setLastMove({ from, to });
-            setCurrentMoveIndex(1); // Player should make move at index 1
 
-            // Set board orientation based on player's color
-            setBoardOrientation(newGame.turn() === 'w' ? 'white' : 'black');
+            // After opponent's move, it's now the player's turn
+            // Determine player color and set board orientation
+            const playerColor = newGame.turn();
+            setBoardOrientation(playerColor === 'w' ? 'white' : 'black');
+
+            // Player should make move at index 1 (responding to opponent's setup)
+            setCurrentMoveIndex(1);
           } catch (err) {
             console.error(`[Puzzle ${puzzleData.lichessPuzzleId}] Invalid first move:`, firstMove);
             console.error('Starting position FEN:', puzzleData.fen);
             throw new Error(`Puzzle ${puzzleData.lichessPuzzleId} has invalid move data. Please try another puzzle.`);
           }
+        } else {
+          // No moves in solution - shouldn't happen but handle gracefully
+          setBoardOrientation(newGame.turn() === 'w' ? 'white' : 'black');
+          setCurrentMoveIndex(0);
         }
       } catch (err) {
         console.error('Failed to fetch puzzle:', err);

@@ -384,7 +384,7 @@ gh pr merge --squash
 ## 🎯 Next Steps
 
 1. ✅ Create GitHub repository
-2. ✅ Configure secrets
+2. ✅ Configure secrets (see [Deployment Guide](DEPLOYMENT_GUIDE.md) for details)
 3. ✅ Set up branch protection
 4. ✅ Test CI pipeline with a PR
 5. ✅ Verify deployment works
@@ -393,4 +393,19 @@ gh pr merge --squash
 
 ---
 
-**Last Updated:** 2026-01-26
+## 📚 Related Documentation
+
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Complete mikr.us deployment guide with:
+  - Server setup and configuration
+  - PostgreSQL shared database setup
+  - Google and Lichess OAuth configuration
+  - Environment variables for production
+  - PM2 process management
+  - Troubleshooting deployment issues
+
+- [Getting Started](GETTING_STARTED.md) - Local development setup
+- [Docker Setup](DOCKER_SETUP.md) - Local database configuration
+
+---
+
+**Last Updated:** 2026-01-27

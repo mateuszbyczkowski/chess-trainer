@@ -12,6 +12,7 @@ Welcome! This guide will walk you through setting up and running the Chess Train
 - [Technical Spec](TECHNICAL_SPEC.md) - API design and architecture
 - [Docker Setup](DOCKER_SETUP.md) - Database setup guide
 - [GitHub Setup](GITHUB_SETUP.md) - Repository and CI/CD configuration
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Mikr.us deployment with PostgreSQL and OAuth
 
 ---
 
@@ -67,14 +68,16 @@ nano .env
 When you're ready to test OAuth:
 
 1. **Lichess OAuth:**
-   - Visit: https://lichess.org/account/oauth/app
-   - Create new app with redirect URI: `http://localhost:3000/api/auth/lichess/callback`
-   - Copy Client ID and Secret to `.env`
+   - Visit: https://lichess.org/account/oauth/token/create
+   - No app registration required - Lichess uses simplified OAuth
+   - For local development, configure callback: `http://localhost:3000/api/auth/lichess/callback`
+   - See [Deployment Guide](DEPLOYMENT_GUIDE.md#4-lichess-oauth-setup) for detailed setup
 
 2. **Google OAuth:**
    - Visit: https://console.cloud.google.com/apis/credentials
    - Create OAuth client with redirect URI: `http://localhost:3000/api/auth/google/callback`
    - Copy Client ID and Secret to `.env`
+   - See [Deployment Guide](DEPLOYMENT_GUIDE.md#3-google-oauth-setup) for detailed setup
 
 ### Step 3: Install Dependencies
 
@@ -598,4 +601,17 @@ For questions or clarifications, refer to the documentation files or reach out t
 
 ---
 
-**Last Updated:** 2026-01-26
+## 🚢 Production Deployment
+
+Ready to deploy to production? See the comprehensive [Deployment Guide](DEPLOYMENT_GUIDE.md) for:
+- Mikr.us server setup with Node.js 20 and PM2
+- PostgreSQL shared database configuration (100MB limit)
+- Google OAuth production setup
+- Lichess OAuth configuration (no app registration needed!)
+- GitHub Secrets configuration for CI/CD
+- Manual deployment steps
+- Troubleshooting common deployment issues
+
+---
+
+**Last Updated:** 2026-01-27
