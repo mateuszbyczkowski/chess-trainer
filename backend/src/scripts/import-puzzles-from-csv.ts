@@ -2,6 +2,10 @@ import { DataSource } from "typeorm";
 import { join } from "path";
 import * as fs from "fs";
 import * as readline from "readline";
+import { config } from "dotenv";
+
+// Load environment variables
+config({ path: join(__dirname, "../../.env") });
 
 /**
  * Import chess puzzles from Lichess CSV format
