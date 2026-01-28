@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes, Outlet } from 'react-router-dom';
 
 // Pages
 import { LoginPage } from '@pages/LoginPage';
+import { AuthCallbackPage } from '@pages/AuthCallbackPage';
 import { DashboardPage } from '@pages/DashboardPage';
 import { PuzzleSolvePage } from '@pages/PuzzleSolvePage';
 import { CategoriesPage } from '@pages/CategoriesPage';
@@ -98,6 +99,7 @@ function App() {
         >
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
             <Route
               element={
