@@ -19,9 +19,14 @@ A chess puzzle training platform built with the Lichess puzzle database. Practic
   - Server setup with Node.js 20 and PM2
   - PostgreSQL shared database (100MB limit)
   - Google OAuth production setup
-  - Lichess OAuth configuration (no app registration needed!)
+  - Lichess OAuth configuration
   - GitHub Secrets and CI/CD configuration
   - Troubleshooting guide
+- [Lichess OAuth Setup](LICHESS_OAUTH_SETUP.md) - **Detailed Lichess OAuth guide**
+  - No app registration required
+  - PKCE implementation
+  - Complete OAuth flow
+  - Troubleshooting and examples
 - [GitHub Setup](GITHUB_SETUP.md) - Repository and CI/CD pipeline configuration
 
 ### Project Planning

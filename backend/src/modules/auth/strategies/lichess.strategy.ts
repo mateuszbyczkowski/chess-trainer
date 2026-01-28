@@ -14,19 +14,39 @@ export class LichessStrategy extends PassportStrategy(Strategy, "lichess") {
       authorizationURL: "https://lichess.org/oauth",
       tokenURL: "https://lichess.org/api/token",
       clientID: configService.get("LICHESS_CLIENT_ID"),
-      clientSecret: configService.get("LICHESS_CLIENT_SECRET"),
+      // Lichess doesn't use client secret (public client with PKCE)
+      clientSecret: "not_required",
       callbackURL: configService.get("LICHESS_REDIRECT_URI"),
       scope: ["email:read"],
+      // IMPORTANT: Lichess requires PKCE for security
+      pkce: true,
+      state: true,
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    // TODO: Fetch Lichess profile using accessToken
-    // For now, returning a placeholder
+    // Fetch actual user data from Lichess API
+    const response = await fetch("https://lichess.org/api/account", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Lichess user: ${response.statusText}`);
+    }
+
+    const lichessUser = await response.json();
+
+    // Transform Lichess data to our user format
     const lichessProfile = {
-      id: "temp_lichess_id",
-      username: "temp_user",
-      rating: 1500,
+      id: lichessUser.id,
+      username: lichessUser.username,
+      email: lichessUser.email,
+      displayName: lichessUser.username,
+      // Optional: save rating for future features
+      blitzRating: lichessUser.perfs?.blitz?.rating,
+      rapidRating: lichessUser.perfs?.rapid?.rating,
     };
 
     return this.authService.findOrCreateLichessUser(lichessProfile);

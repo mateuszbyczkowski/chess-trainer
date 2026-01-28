@@ -164,63 +164,40 @@ GOOGLE_CALLBACK_URL=https://your-domain.com/api/auth/google/callback
 
 ## 4. Lichess OAuth Setup
 
-Lichess has a simpler OAuth setup than most providers - no app registration required!
+Lichess uses a **simplified OAuth approach** - no app registration required!
 
-### For Personal Use (Simple Method)
+### Quick Setup
 
-1. **Create Personal Access Token:**
-   - Visit: https://lichess.org/account/oauth/token/create
-   - Or navigate: Click username → Preferences → API Access tokens → '+' button
+**Environment Variables:**
+```bash
+# Local
+LICHESS_CLIENT_ID=chess-trainer-localhost
+LICHESS_REDIRECT_URI=http://localhost:3009/api/auth/lichess/callback
 
-2. **Configure token:**
-   - Description: "Chess Trainer App"
-   - Select scopes needed:
-     - `Read email address` (email:read)
-     - `Read preferences` (preference:read)
-   - Click "Create"
-
-3. **Save the token:**
-   - Copy the token immediately (you won't see it again!)
-   - This can be used for testing
-
-### For Multi-User OAuth (Recommended for Production)
-
-Lichess supports standard OAuth 2.0 without requiring app registration:
-
-1. **OAuth Endpoints:**
-   ```
-   Authorization: https://lichess.org/oauth
-   Token: https://lichess.org/api/token
-   User Info: https://lichess.org/api/account
-   ```
-
-2. **Configuration Values Needed:**
-   ```bash
-   LICHESS_CLIENT_ID=chess-trainer-app  # Can be any identifier
-   LICHESS_CALLBACK_URL=https://your-domain.com/api/auth/lichess/callback
-   ```
-
-3. **Scopes Available:**
-   - `email:read` - Read email address
-   - `preference:read` - Read preferences
-   - `challenge:read` - Read incoming challenges
-   - `challenge:write` - Create, accept, decline challenges
-
-4. **Implementation Notes:**
-   - Lichess uses PKCE (Proof Key for Code Exchange) for added security
-   - No client secret is required
-   - Perfect for client-side and mobile apps
-   - Official API docs: https://lichess.org/api
-
-### Your Backend Configuration
-
-For your NestJS backend, you'll configure Lichess OAuth in `backend/src/modules/auth/`:
-
-```typescript
-// No client secret needed for Lichess!
-LICHESS_CLIENT_ID: process.env.LICHESS_CLIENT_ID,
-LICHESS_CALLBACK_URL: process.env.LICHESS_CALLBACK_URL,
+# Production (Mikr.us)
+LICHESS_CLIENT_ID=chess-trainer-app
+LICHESS_REDIRECT_URI=http://srv37.mikr.us:30191/api/auth/lichess/callback
 ```
+
+### Key Points
+
+- ✅ **No app registration** on Lichess's side needed
+- ✅ **No client secret** required (uses PKCE for security)
+- ✅ Works with **any redirect URI** (no pre-registration)
+- ✅ Client ID can be **any string** (e.g., "chess-trainer-app")
+
+### Complete Documentation
+
+For detailed implementation guide, troubleshooting, and examples, see:
+
+**📖 [Lichess OAuth Setup Guide](LICHESS_OAUTH_SETUP.md)**
+
+Includes:
+- Step-by-step setup instructions
+- Complete OAuth flow diagrams
+- PKCE implementation details
+- Troubleshooting guide
+- Code examples
 
 ---
 
