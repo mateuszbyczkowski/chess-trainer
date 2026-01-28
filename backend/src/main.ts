@@ -2,12 +2,28 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import * as session from "express-session";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Global prefix
   app.setGlobalPrefix("api");
+
+  // Session configuration (required for OAuth)
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || "chess-trainer-secret-change-in-production",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        maxAge: 3600000, // 1 hour
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      },
+    }),
+  );
 
   // Enable CORS
   app.enableCors({

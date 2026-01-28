@@ -319,7 +319,73 @@ const transformedAttempts = parsedAttempts.map((attempt) => ({
 
 ---
 
-### 6. Puzzle Themes & Openings Implementation
+### 6. OAuth Session Support Fix
+
+**Status:** ✅ Fixed, Ready for Commit
+
+**Description:** OAuth logins (Lichess, Google) were failing with error "OAuth 2.0 authentication requires session support when using state. Did you forget to use express-session middleware?"
+
+**Problem:**
+- Backend was missing express-session middleware
+- OAuth 2.0 requires session support to store state during authentication flow
+- Users couldn't login with Lichess or Google OAuth
+- Error occurred on attempting OAuth login
+
+**Solution:**
+- Installed express-session and @types/express-session packages
+- Configured session middleware in main.ts with:
+  - Session secret (from environment variable SESSION_SECRET)
+  - 1-hour session expiry
+  - Secure cookies in production (HTTPS only)
+  - SameSite cookie policy
+- Added SESSION_SECRET to .env.example and .env.production
+
+**Files Changed:**
+- `backend/src/main.ts` - Added express-session middleware configuration
+- `backend/package.json` - Added express-session dependencies
+- `.env.example` - Added SESSION_SECRET variable
+- `backend/.env.production` - Added SESSION_SECRET variable
+
+**Code Reference:**
+```typescript
+// backend/src/main.ts
+import * as session from "express-session";
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 3600000, // 1 hour
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    },
+  }),
+);
+```
+
+**Impact:**
+- OAuth logins (Lichess, Google) now work correctly
+- Session state is properly maintained during OAuth flow
+- Production deployment requires SESSION_SECRET to be set in environment
+
+**Deployment Notes:**
+- **IMPORTANT:** Generate a secure SESSION_SECRET for production:
+  ```bash
+  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  ```
+- Add SESSION_SECRET to server environment variables
+- Restart backend after deploying
+
+**To Document:**
+- Add to README.md OAuth setup section
+- Add to deployment guide
+
+---
+
+### 7. Puzzle Themes & Openings Implementation
 
 **Status:** ✅ Implemented, Committed, Needs Deployment
 
@@ -395,7 +461,7 @@ async getOpenings(): Promise<{ name: string; count: number }[]> {
 
 ---
 
-### 7. Puzzle Import Script Improvements
+### 8. Puzzle Import Script Improvements
 
 **Status:** ✅ Updated, Committed, Pushed
 
@@ -444,10 +510,11 @@ The following changes are committed to `main` branch but **NOT YET DEPLOYED** to
 2. ✅ Guest stats bug fix (StatsPage) - DEPLOYED
 3. ✅ Guest history bug fix (HistoryPage) - DEPLOYED (commit f3656f8)
 4. ✅ Authentication & route protection fixes - DEPLOYED (commit f3656f8)
-5. ✅ Guest data migration fix v1 - DEPLOYED (commit 3703ee8) - **BROKEN, needs v2**
-6. ⏳ Guest data migration fix v2 - Ready to commit (CRITICAL - fixes history errors)
-7. ✅ Puzzle themes/openings implementation
-8. ✅ Puzzle import script improvements
+5. ✅ Guest data migration fix v1 - DEPLOYED (commit 3703ee8) - **BROKEN**
+6. ✅ Guest data migration fix v2 - DEPLOYED (commit b548a08)
+7. ⏳ OAuth session support fix - Ready to commit (CRITICAL - OAuth logins broken without this)
+8. ✅ Puzzle themes/openings implementation
+9. ✅ Puzzle import script improvements
 
 ### How to Deploy
 
@@ -579,6 +646,8 @@ sudo apt-get update && sudo apt-get install -y zstd
 
 ### Backend Files
 - ✅ `backend/src/modules/puzzles/puzzles.service.ts` (Modified - implemented getThemes and getOpenings)
+- ⏳ `backend/src/main.ts` (Modified - added express-session middleware) - Ready to commit
+- ⏳ `backend/package.json` (Modified - added express-session dependencies) - Ready to commit
 
 ### Scripts
 - ✅ `server-import-puzzles.sh` (Modified - added zstd detection)
@@ -586,9 +655,13 @@ sudo apt-get update && sudo apt-get install -y zstd
 - ❌ `download-and-import-puzzles.sh` (Deleted - network issues)
 - ❌ `import-puzzles-remote.sh` (Deleted - network issues)
 
+### Configuration
+- ⏳ `.env.example` (Modified - added SESSION_SECRET) - Ready to commit
+- ⏳ `backend/.env.production` (Modified - added SESSION_SECRET) - Ready to commit
+
 ### Documentation
 - ✅ `PUZZLE_IMPORT_GUIDE.md` (Modified - simplified to single method)
-- ✅ `RECENT_CHANGES.md` (Created - this file)
+- ⏳ `RECENT_CHANGES.md` (Modified - documented OAuth session fix) - Ready to commit
 
 ---
 
