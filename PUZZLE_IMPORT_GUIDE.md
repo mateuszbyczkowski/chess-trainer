@@ -4,14 +4,43 @@ This guide explains how to import chess puzzles from the Lichess database into y
 
 ## Prerequisites
 
+- SSH access to `jan191@srv37.mikr.us`
+- Password for SSH authentication
+- `zstd` decompression tool (already installed on server)
+
+## Recommended Method: Download Directly on Server
+
+**This is the easiest and fastest approach** - downloads puzzles directly on the server:
+
+```bash
+# Import limited number (recommended for testing)
+./download-and-import-puzzles.sh 100000  # Import first 100,000 puzzles
+
+# Or import all puzzles (may hit database limit)
+./download-and-import-puzzles.sh
+```
+
+This script will:
+1. SSH into the server
+2. Download puzzles from Lichess (if not already downloaded)
+3. Decompress the file
+4. Import into database
+5. Show progress and statistics
+
+**Skip to "Verification" section below** if using this method.
+
+---
+
+## Alternative Method 1: Upload from Local Machine
+
+If you already have the file locally and have network access to the server:
+
+### Prerequisites
+
 1. **Download Lichess Puzzle Database**
    - Go to: https://database.lichess.org/#puzzles
    - Download the latest `lichess_db_puzzle.csv.zst` file
    - Place it in the project root directory
-
-2. **Server Access**
-   - SSH access to `jan191@srv37.mikr.us`
-   - Password for SSH authentication
 
 ## Step 1: Upload Puzzles to Server
 
@@ -151,21 +180,24 @@ psql -h psql01.mikr.us -U jan191 -d db_jan191 -c "
 ## Database Storage Considerations
 
 **mikr.us Database Limits:**
-- Database size limit: 100 MB
+- Database size limit: 200-300 MB
 - Each puzzle takes approximately 500-800 bytes
 
 **Estimated capacity:**
-- ~125,000 - 200,000 puzzles per 100MB
+- 200MB = ~250,000 - 400,000 puzzles
+- 300MB = ~375,000 - 600,000 puzzles
 
 **Recommendations:**
-1. Start with a limited import (10,000-50,000 puzzles)
-2. Monitor database size: `\l+` in psql
-3. Import more as needed based on usage
+1. Start with a limited import (50,000-100,000 puzzles for testing)
+2. Monitor database size: `\l+` in psql or check mikr.us dashboard
+3. Can import up to 400,000+ puzzles within the limit
+4. Import more as needed based on usage
 
 ## Files
 
-- `upload-puzzles.sh` - Uploads CSV file to server
-- `import-puzzles-remote.sh` - Runs import on server
+- `upload-puzzles.sh` - Uploads CSV file to server via SCP (requires network access)
+- `download-and-import-puzzles.sh` - Downloads puzzles directly on server and imports (recommended)
+- `import-puzzles-remote.sh` - Runs import on server (if file already uploaded)
 - `backend/src/scripts/import-puzzles-from-csv.ts` - Import script (runs on server)
 
 ## Production URLs
