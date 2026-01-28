@@ -3,14 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import { statsApi } from '@services/api';
 
-interface GuestAttempt {
-  puzzleId: string;
-  solved: boolean;
-  timeSpent: number;
-  movesMade: string;
-  timestamp: string;
-}
-
 interface Stats {
   totalAttempts: number;
   totalSolved: number;
@@ -37,43 +29,15 @@ export function StatsPage() {
         setIsLoading(true);
         setError(null);
 
-        if (user?.isGuest) {
-          // Calculate from localStorage for guest users
-          const guestAttempts: GuestAttempt[] = JSON.parse(
-            localStorage.getItem('guestAttempts') || '[]'
-          );
-
-          const totalAttempts = guestAttempts.length;
-          const totalSolved = guestAttempts.filter((a) => a.solved).length;
-          const successRate = totalAttempts > 0 ? (totalSolved / totalAttempts) * 100 : 0;
-
-          // Calculate average time
-          const averageTime =
-            totalAttempts > 0
-              ? guestAttempts.reduce((sum, a) => sum + a.timeSpent, 0) / totalAttempts
-              : 0;
-
-          // Calculate current streak (consecutive days with solved puzzles)
-          const currentStreak = calculateStreak(guestAttempts);
-
-          setStats({
-            totalAttempts,
-            totalSolved,
-            successRate,
-            averageTime: Math.round(averageTime),
-            currentStreak,
-          });
-        } else {
-          // Fetch from API for authenticated users
-          const userStats = await statsApi.getUserStats();
-          setStats({
-            totalAttempts: userStats.totalAttempts,
-            totalSolved: userStats.totalSolved,
-            successRate: userStats.successRate,
-            averageTime: 0, // Backend doesn't provide this yet
-            currentStreak: userStats.currentStreak,
-          });
-        }
+        // statsApi.getUserStats() handles both guests (localStorage) and authenticated users (API)
+        const userStats = await statsApi.getUserStats();
+        setStats({
+          totalAttempts: userStats.totalAttempts,
+          totalSolved: userStats.totalSolved,
+          successRate: userStats.successRate,
+          averageTime: 0, // Not tracked yet
+          currentStreak: userStats.currentStreak,
+        });
       } catch (err) {
         console.error('Failed to load stats:', err);
         setError('Failed to load statistics');
@@ -84,48 +48,6 @@ export function StatsPage() {
 
     fetchStats();
   }, [user]);
-
-  const calculateStreak = (attempts: GuestAttempt[]): number => {
-    if (attempts.length === 0) return 0;
-
-    // Sort by date descending
-    const sorted = [...attempts].sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-
-    // Get dates with solved puzzles
-    const solvedDates = sorted
-      .filter((a) => a.solved)
-      .map((a) => new Date(a.timestamp).toDateString());
-
-    if (solvedDates.length === 0) return 0;
-
-    // Check if most recent date is today or yesterday
-    const today = new Date().toDateString();
-    const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-    if (solvedDates[0] !== today && solvedDates[0] !== yesterday) {
-      return 0; // Streak is broken
-    }
-
-    // Count consecutive days
-    let streak = 1;
-    let currentDate = new Date(solvedDates[0]);
-
-    for (let i = 1; i < solvedDates.length; i++) {
-      const prevDate = new Date(currentDate);
-      prevDate.setDate(prevDate.getDate() - 1);
-
-      if (solvedDates[i] === prevDate.toDateString()) {
-        streak++;
-        currentDate = prevDate;
-      } else {
-        break;
-      }
-    }
-
-    return streak;
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
