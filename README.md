@@ -4,6 +4,16 @@ A chess puzzle training platform built with the Lichess puzzle database. Practic
 
 **Status:** 🚧 In Development - Iteration 1 (MVP)
 
+[![CI/CD Pipeline](https://github.com/mateuszbyczkowski/chess-trainer/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mateuszbyczkowski/chess-trainer/actions/workflows/ci-cd.yml)
+
+## ✨ Features
+
+- 🎯 **Automated Deployment** - Push to `main` triggers automatic deployment to production
+- ♟️ **Lichess Puzzle Database** - Thousands of curated chess puzzles
+- 🔐 **Multiple Auth Options** - Lichess OAuth, Google OAuth, or Guest mode
+- 📊 **Progress Tracking** - Track your solving stats and improvement over time
+- 🧪 **100% Test Coverage** - Comprehensive E2E and unit tests
+
 ---
 
 ## 📋 Project Documentation
@@ -432,4 +442,4 @@ This project is created for educational purposes as part of the Przeprogramowani
 
 ---
 
-**Last Updated:** 2026-01-27
+**Last Updated:** 2026-01-28
