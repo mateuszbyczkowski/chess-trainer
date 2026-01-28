@@ -18,6 +18,10 @@ import { StatsPage } from '@pages/StatsPage';
 import { Layout } from '@components/layout/Layout';
 import { AuthProvider } from '@contexts/AuthContext';
 import { ProtectedRoute } from '@components/ProtectedRoute';
+import { migrateGuestData } from '@services/migrateGuestData';
+
+// Run guest data migration on app load
+migrateGuestData();
 
 // Auth provider for Refine
 const authProvider = {

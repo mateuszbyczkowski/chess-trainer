@@ -248,7 +248,44 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
 ---
 
-### 5. Puzzle Themes & Openings Implementation
+### 5. Guest Data Migration Fix
+
+**Status:** ✅ Fixed, Ready for Commit
+
+**Description:** After deployment, existing guest users' stats, history, and dashboard showed no data because their data was stored under old localStorage keys without the `chess_trainer_` prefix.
+
+**Problem:**
+- Old code used localStorage key `guestAttempts` (no prefix)
+- New code uses `chess_trainer_guest_attempts` (with prefix)
+- Existing users who solved puzzles before the fix had data under old key
+- After updating to new key system, their old data became inaccessible
+- Result: Stats showed 0, history was empty, dashboard had no data
+
+**Solution:**
+- Created `migrateGuestData()` function to automatically migrate old data to new keys
+- Migration runs once on app load (before AuthProvider initializes)
+- Migrates:
+  - `guestAttempts` → `chess_trainer_guest_attempts`
+  - `user` (if local guest) → `chess_trainer_guest_user`
+- Sets flag `chess_trainer_migration_done` to prevent re-running
+- Automatically reloads page after successful migration
+
+**Files Changed:**
+- `frontend/src/services/migrateGuestData.ts` (Created) - Migration logic
+- `frontend/src/App.tsx` - Calls migration on app load
+
+**Impact:**
+- Existing guest users will have their data automatically migrated on next page load
+- Stats, history, and dashboard will display correctly after migration
+- One-time migration prevents performance impact on subsequent loads
+- Users don't lose their puzzle attempt history
+
+**To Document:**
+- Add to GUEST_MODE_IMPLEMENTATION.md under "Data Migration" section
+
+---
+
+### 6. Puzzle Themes & Openings Implementation
 
 **Status:** ✅ Implemented, Committed, Needs Deployment
 
@@ -324,7 +361,7 @@ async getOpenings(): Promise<{ name: string; count: number }[]> {
 
 ---
 
-### 6. Puzzle Import Script Improvements
+### 7. Puzzle Import Script Improvements
 
 **Status:** ✅ Updated, Committed, Pushed
 
@@ -370,11 +407,12 @@ async getOpenings(): Promise<{ name: string; count: number }[]> {
 The following changes are committed to `main` branch but **NOT YET DEPLOYED** to production:
 
 1. ❌ First-visit redirect feature - REMOVED (replaced by ProtectedRoute)
-2. ✅ Guest stats bug fix (StatsPage)
-3. ⏳ Guest history bug fix (HistoryPage) - Ready to commit
-4. ⏳ Authentication & route protection fixes - Ready to commit
-5. ✅ Puzzle themes/openings implementation
-6. ✅ Puzzle import script improvements
+2. ✅ Guest stats bug fix (StatsPage) - DEPLOYED
+3. ✅ Guest history bug fix (HistoryPage) - DEPLOYED (commit f3656f8)
+4. ✅ Authentication & route protection fixes - DEPLOYED (commit f3656f8)
+5. ⏳ Guest data migration fix - Ready to commit (CRITICAL for existing users)
+6. ✅ Puzzle themes/openings implementation
+7. ✅ Puzzle import script improvements
 
 ### How to Deploy
 
@@ -496,12 +534,13 @@ sudo apt-get update && sudo apt-get install -y zstd
 ## 📦 Files Modified in This Session
 
 ### Frontend Files
-- ❌ `frontend/src/components/FirstVisitRedirect.tsx` (Removed - replaced by ProtectedRoute)
-- ✅ `frontend/src/App.tsx` (Modified - removed FirstVisitRedirect, added ProtectedRoute wrapper)
-- ✅ `frontend/src/pages/StatsPage.tsx` (Modified - fixed guest stats bug)
-- ⏳ `frontend/src/pages/HistoryPage.tsx` (Modified - fixed guest history bug) - Ready to commit
-- ⏳ `frontend/src/components/layout/Header.tsx` (Modified - fixed logout redirect, added login button) - Ready to commit
-- ⏳ `frontend/src/components/ProtectedRoute.tsx` (Created - route protection component) - Ready to commit
+- ❌ `frontend/src/components/FirstVisitRedirect.tsx` (Removed - replaced by ProtectedRoute) - DEPLOYED
+- ✅ `frontend/src/App.tsx` (Modified - removed FirstVisitRedirect, added ProtectedRoute wrapper, added migration call) - DEPLOYED + Updated
+- ✅ `frontend/src/pages/StatsPage.tsx` (Modified - fixed guest stats bug) - DEPLOYED
+- ✅ `frontend/src/pages/HistoryPage.tsx` (Modified - fixed guest history bug) - DEPLOYED
+- ✅ `frontend/src/components/layout/Header.tsx` (Modified - fixed logout redirect, added login button) - DEPLOYED
+- ✅ `frontend/src/components/ProtectedRoute.tsx` (Created - route protection component) - DEPLOYED
+- ⏳ `frontend/src/services/migrateGuestData.ts` (Created - guest data migration logic) - Ready to commit
 
 ### Backend Files
 - ✅ `backend/src/modules/puzzles/puzzles.service.ts` (Modified - implemented getThemes and getOpenings)
