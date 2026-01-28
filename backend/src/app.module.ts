@@ -21,7 +21,7 @@ import { AppController } from "./app.controller";
     DatabaseModule,
 
     // Feature modules
-    AuthModule,
+    AuthModule.register(),
     UsersModule,
     PuzzlesModule,
     AttemptsModule,

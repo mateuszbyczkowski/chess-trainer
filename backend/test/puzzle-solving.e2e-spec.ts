@@ -11,6 +11,7 @@ interface AttemptResponse {
   moves: string[];
   timeSpentSeconds: number;
   hintsUsed: number;
+  attemptNumber: number;
   attemptedAt?: string;
   puzzle?: unknown;
 }
@@ -73,18 +74,16 @@ describe("Puzzle Solving E2E Test", () => {
     const puzzleId = puzzleResponse.body.id;
     const puzzleMoves = puzzleResponse.body.moves;
 
-    // Convert moves string to array (puzzle stores as string, attempt expects array)
-    const movesArray =
-      typeof puzzleMoves === "string" ? puzzleMoves.split(" ") : puzzleMoves;
+    // Ensure moves is a string (puzzle stores as string, attempt expects string)
+    const movesString =
+      typeof puzzleMoves === "string" ? puzzleMoves : puzzleMoves.join(" ");
 
     // Step 3: Submit a solved attempt for the puzzle
     const attemptData = {
       puzzleId: puzzleId,
       solved: true,
-      moves: movesArray, // Using the correct solution moves as array
-      timeSpentSeconds: 45,
-      hintsUsed: 0,
-      attemptNumber: 1,
+      movesMade: movesString, // Using the correct solution moves as string
+      timeSpent: 45,
     };
 
     const attemptResponse = await request(app.getHttpServer())
@@ -97,7 +96,7 @@ describe("Puzzle Solving E2E Test", () => {
     expect(attemptResponse.body.userId).toBe(userId);
     expect(attemptResponse.body.puzzleId).toBe(puzzleId);
     expect(attemptResponse.body.solved).toBe(true);
-    expect(attemptResponse.body.moves).toEqual(movesArray);
+    expect(attemptResponse.body.moves).toEqual(movesString.split(" ").filter((m: string) => m.length > 0));
 
     const attemptId = attemptResponse.body.id;
 
@@ -119,7 +118,7 @@ describe("Puzzle Solving E2E Test", () => {
     expect(savedAttempt.userId).toBe(userId);
     expect(savedAttempt.puzzleId).toBe(puzzleId);
     expect(savedAttempt.solved).toBe(true);
-    expect(savedAttempt.moves).toEqual(movesArray);
+    expect(savedAttempt.moves).toEqual(movesString.split(" ").filter((m: string) => m.length > 0));
     expect(savedAttempt.timeSpentSeconds).toBe(45);
     expect(savedAttempt.hintsUsed).toBe(0);
     expect(savedAttempt).toHaveProperty("puzzle");

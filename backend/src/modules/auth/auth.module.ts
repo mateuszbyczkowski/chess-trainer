@@ -1,4 +1,4 @@
-import { Module, DynamicModule } from "@nestjs/common";
+import { Module, DynamicModule, Provider } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -13,15 +13,15 @@ import { GoogleStrategy } from "./strategies/google.strategy";
 @Module({})
 export class AuthModule {
   static register(): DynamicModule {
-    const providers = [AuthService, JwtStrategy];
+    const providers: Provider[] = [AuthService, JwtStrategy];
 
     // Only register OAuth strategies if their credentials are configured
     if (process.env.LICHESS_CLIENT_ID || process.env.LICHESS_REDIRECT_URI) {
-      providers.push(LichessStrategy);
+      providers.push(LichessStrategy as Provider);
     }
 
     if (process.env.GOOGLE_CLIENT_ID) {
-      providers.push(GoogleStrategy);
+      providers.push(GoogleStrategy as Provider);
     }
 
     return {
