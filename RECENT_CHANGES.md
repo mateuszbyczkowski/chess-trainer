@@ -248,37 +248,71 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
 ---
 
-### 5. Guest Data Migration Fix
+### 5. Guest Data Migration Fix (v1 & v2)
 
-**Status:** ✅ Fixed, Ready for Commit
+**Status:** ✅ Fixed v2, Committed (commit 3703ee8 - v1, needs v2 update)
 
-**Description:** After deployment, existing guest users' stats, history, and dashboard showed no data because their data was stored under old localStorage keys without the `chess_trainer_` prefix.
+**Description:** After deployment, existing guest users' stats, history, and dashboard showed no data because their data was stored under old localStorage keys and old data structure.
 
-**Problem:**
+**Problem v1:**
 - Old code used localStorage key `guestAttempts` (no prefix)
 - New code uses `chess_trainer_guest_attempts` (with prefix)
 - Existing users who solved puzzles before the fix had data under old key
 - After updating to new key system, their old data became inaccessible
 - Result: Stats showed 0, history was empty, dashboard had no data
 
-**Solution:**
-- Created `migrateGuestData()` function to automatically migrate old data to new keys
-- Migration runs once on app load (before AuthProvider initializes)
-- Migrates:
-  - `guestAttempts` → `chess_trainer_guest_attempts`
-  - `user` (if local guest) → `chess_trainer_guest_user`
-- Sets flag `chess_trainer_migration_done` to prevent re-running
-- Automatically reloads page after successful migration
+**Problem v2 (after v1 migration):**
+- v1 migration copied data as-is without transforming structure
+- Old data had `movesMade` as string (e.g., "e2e4 e7e5")
+- New code expects `moves` as array (e.g., ["e2e4", "e7e5"])
+- Result: "Cannot read properties of undefined (reading 'join')" error in history
+
+**Solution v1:**
+- Created `migrateGuestData()` function to migrate localStorage keys
+- Migrated `guestAttempts` → `chess_trainer_guest_attempts`
+
+**Solution v2:**
+- Enhanced migration with versioning system
+- Transforms data structure during migration:
+  - Converts `movesMade` string → `moves` array
+  - Handles multiple field name variations (attemptedAt/timestamp, timeSpent/timeSpentSeconds)
+  - Ensures all required fields have defaults
+- Handles two scenarios:
+  - Fresh migration: Old key → new key with transformation
+  - Re-migration: Existing new key with wrong structure → transformed structure
+- Uses migration version (v2) to allow re-running for users who got v1
 
 **Files Changed:**
-- `frontend/src/services/migrateGuestData.ts` (Created) - Migration logic
+- `frontend/src/services/migrateGuestData.ts` (v1 created, v2 enhanced) - Migration with data transformation
 - `frontend/src/App.tsx` - Calls migration on app load
 
+**Migration Logic (v2):**
+```typescript
+// Check version and determine source
+const currentVersion = parseInt(localStorage.getItem('chess_trainer_migration_version') || '0', 10);
+
+if (oldAttempts && !newAttempts) {
+  // Case 1: Migrate from old key
+} else if (newAttempts && currentVersion < 2) {
+  // Case 2: Transform existing data
+}
+
+// Transform each attempt
+const transformedAttempts = parsedAttempts.map((attempt) => ({
+  id: attempt.id || generateId(),
+  puzzleId: attempt.puzzleId,
+  solved: attempt.solved ?? false,
+  moves: transformMovesMadeToArray(attempt), // String → Array
+  timeSpent: attempt.timeSpent || attempt.timeSpentSeconds || 0,
+  attemptedAt: attempt.attemptedAt || attempt.timestamp || new Date().toISOString(),
+}));
+```
+
 **Impact:**
-- Existing guest users will have their data automatically migrated on next page load
-- Stats, history, and dashboard will display correctly after migration
-- One-time migration prevents performance impact on subsequent loads
-- Users don't lose their puzzle attempt history
+- v1 users: Data migrated to new key (but broken structure)
+- v2 users: Data structure fixed, history works correctly
+- Version system prevents infinite re-migration loops
+- One-time migration per version with automatic page reload
 
 **To Document:**
 - Add to GUEST_MODE_IMPLEMENTATION.md under "Data Migration" section
@@ -410,9 +444,10 @@ The following changes are committed to `main` branch but **NOT YET DEPLOYED** to
 2. ✅ Guest stats bug fix (StatsPage) - DEPLOYED
 3. ✅ Guest history bug fix (HistoryPage) - DEPLOYED (commit f3656f8)
 4. ✅ Authentication & route protection fixes - DEPLOYED (commit f3656f8)
-5. ⏳ Guest data migration fix - Ready to commit (CRITICAL for existing users)
-6. ✅ Puzzle themes/openings implementation
-7. ✅ Puzzle import script improvements
+5. ✅ Guest data migration fix v1 - DEPLOYED (commit 3703ee8) - **BROKEN, needs v2**
+6. ⏳ Guest data migration fix v2 - Ready to commit (CRITICAL - fixes history errors)
+7. ✅ Puzzle themes/openings implementation
+8. ✅ Puzzle import script improvements
 
 ### How to Deploy
 
@@ -535,12 +570,12 @@ sudo apt-get update && sudo apt-get install -y zstd
 
 ### Frontend Files
 - ❌ `frontend/src/components/FirstVisitRedirect.tsx` (Removed - replaced by ProtectedRoute) - DEPLOYED
-- ✅ `frontend/src/App.tsx` (Modified - removed FirstVisitRedirect, added ProtectedRoute wrapper, added migration call) - DEPLOYED + Updated
+- ✅ `frontend/src/App.tsx` (Modified - removed FirstVisitRedirect, added ProtectedRoute wrapper, added migration call) - DEPLOYED
 - ✅ `frontend/src/pages/StatsPage.tsx` (Modified - fixed guest stats bug) - DEPLOYED
 - ✅ `frontend/src/pages/HistoryPage.tsx` (Modified - fixed guest history bug) - DEPLOYED
 - ✅ `frontend/src/components/layout/Header.tsx` (Modified - fixed logout redirect, added login button) - DEPLOYED
 - ✅ `frontend/src/components/ProtectedRoute.tsx` (Created - route protection component) - DEPLOYED
-- ⏳ `frontend/src/services/migrateGuestData.ts` (Created - guest data migration logic) - Ready to commit
+- ⏳ `frontend/src/services/migrateGuestData.ts` (v1 DEPLOYED broken, v2 enhanced with data transformation) - Ready to commit
 
 ### Backend Files
 - ✅ `backend/src/modules/puzzles/puzzles.service.ts` (Modified - implemented getThemes and getOpenings)
