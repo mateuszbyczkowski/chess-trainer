@@ -206,9 +206,9 @@ export const attemptsApi = {
         userId: user.id,
         puzzleId: guestAttempt.puzzleId,
         solved: guestAttempt.solved,
-        timeSpent: guestAttempt.timeSpent,
-        movesMade: guestAttempt.moves.join(' '),
-        createdAt: guestAttempt.attemptedAt,
+        timeSpentSeconds: guestAttempt.timeSpent,
+        moves: guestAttempt.moves,
+        attemptedAt: guestAttempt.attemptedAt,
       };
     }
 
@@ -255,9 +255,9 @@ export const attemptsApi = {
         userId: user.id,
         puzzleId: attempt.puzzleId,
         solved: attempt.solved,
-        timeSpent: attempt.timeSpent,
-        movesMade: attempt.moves.join(' '),
-        createdAt: attempt.attemptedAt,
+        timeSpentSeconds: attempt.timeSpent,
+        moves: attempt.moves,
+        attemptedAt: attempt.attemptedAt,
       }));
 
       return {
@@ -289,10 +289,13 @@ export const statsApi = {
       return {
         totalAttempts: stats.totalAttempts,
         totalSolved: stats.totalSolved,
-        averageRating: 0, // Not calculated for guests
-        successRate: stats.successRate,
+        accuracy: stats.successRate,
+        averageTimeSeconds: 0, // Not calculated for guests yet
         currentStreak: stats.currentStreak,
         longestStreak: stats.longestStreak,
+        solvedToday: 0, // Not calculated for guests yet
+        solvedThisWeek: 0, // Not calculated for guests yet
+        solvedThisMonth: 0, // Not calculated for guests yet
       };
     }
 
@@ -302,10 +305,13 @@ export const statsApi = {
     return {
       totalAttempts: data.totalAttempts || 0,
       totalSolved: data.totalSolved || 0,
-      averageRating: 0, // TODO: Backend doesn't provide this yet
-      successRate: data.accuracy || 0,
+      accuracy: data.accuracy || 0,
+      averageTimeSeconds: data.averageTimeSeconds || 0,
       currentStreak: data.currentStreak || 0,
       longestStreak: data.longestStreak || 0,
+      solvedToday: data.solvedToday || 0,
+      solvedThisWeek: data.solvedThisWeek || 0,
+      solvedThisMonth: data.solvedThisMonth || 0,
     };
   },
 

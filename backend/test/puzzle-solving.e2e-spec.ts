@@ -1,9 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { Test, TestingModule } from "@nestjs/testing";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import request from "supertest";
+import { AppModule } from "../src/app.module";
 
-describe('Puzzle Solving E2E Test', () => {
+interface AttemptResponse {
+  id: string;
+  userId: string;
+  puzzleId: string;
+  solved: boolean;
+  moves: string[];
+  timeSpentSeconds: number;
+  hintsUsed: number;
+  attemptedAt?: string;
+  puzzle?: unknown;
+}
+
+describe("Puzzle Solving E2E Test", () => {
   let app: INestApplication;
   let authToken: string;
   let userId: string;
@@ -16,7 +28,7 @@ describe('Puzzle Solving E2E Test', () => {
     app = moduleFixture.createNestApplication();
 
     // Apply the same global configuration as in main.ts
-    app.setGlobalPrefix('api');
+    app.setGlobalPrefix("api");
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -35,15 +47,15 @@ describe('Puzzle Solving E2E Test', () => {
     await app.close();
   });
 
-  it('should complete full puzzle solving flow: create guest user, fetch puzzle, solve, and verify saved attempt', async () => {
+  it("should complete full puzzle solving flow: create guest user, fetch puzzle, solve, and verify saved attempt", async () => {
     // Step 1: Create a guest user and authenticate
     const guestResponse = await request(app.getHttpServer())
-      .post('/api/auth/guest')
+      .post("/api/auth/guest")
       .expect(201);
 
-    expect(guestResponse.body).toHaveProperty('accessToken');
-    expect(guestResponse.body).toHaveProperty('user');
-    expect(guestResponse.body.user).toHaveProperty('id');
+    expect(guestResponse.body).toHaveProperty("accessToken");
+    expect(guestResponse.body).toHaveProperty("user");
+    expect(guestResponse.body.user).toHaveProperty("id");
     expect(guestResponse.body.user.isGuest).toBe(true);
 
     authToken = guestResponse.body.accessToken;
@@ -51,20 +63,19 @@ describe('Puzzle Solving E2E Test', () => {
 
     // Step 2: Fetch a random puzzle
     const puzzleResponse = await request(app.getHttpServer())
-      .get('/api/puzzles/random')
+      .get("/api/puzzles/random")
       .expect(200);
 
-    expect(puzzleResponse.body).toHaveProperty('id');
-    expect(puzzleResponse.body).toHaveProperty('fen');
-    expect(puzzleResponse.body).toHaveProperty('moves');
+    expect(puzzleResponse.body).toHaveProperty("id");
+    expect(puzzleResponse.body).toHaveProperty("fen");
+    expect(puzzleResponse.body).toHaveProperty("moves");
 
     const puzzleId = puzzleResponse.body.id;
     const puzzleMoves = puzzleResponse.body.moves;
 
     // Convert moves string to array (puzzle stores as string, attempt expects array)
-    const movesArray = typeof puzzleMoves === 'string'
-      ? puzzleMoves.split(' ')
-      : puzzleMoves;
+    const movesArray =
+      typeof puzzleMoves === "string" ? puzzleMoves.split(" ") : puzzleMoves;
 
     // Step 3: Submit a solved attempt for the puzzle
     const attemptData = {
@@ -77,12 +88,12 @@ describe('Puzzle Solving E2E Test', () => {
     };
 
     const attemptResponse = await request(app.getHttpServer())
-      .post('/api/attempts')
-      .set('Authorization', `Bearer ${authToken}`)
+      .post("/api/attempts")
+      .set("Authorization", `Bearer ${authToken}`)
       .send(attemptData)
       .expect(201);
 
-    expect(attemptResponse.body).toHaveProperty('id');
+    expect(attemptResponse.body).toHaveProperty("id");
     expect(attemptResponse.body.userId).toBe(userId);
     expect(attemptResponse.body.puzzleId).toBe(puzzleId);
     expect(attemptResponse.body.solved).toBe(true);
@@ -92,8 +103,8 @@ describe('Puzzle Solving E2E Test', () => {
 
     // Step 4: Verify the attempt was saved by fetching user's attempt history
     const historyResponse = await request(app.getHttpServer())
-      .get('/api/attempts/history?limit=50&offset=0')
-      .set('Authorization', `Bearer ${authToken}`)
+      .get("/api/attempts/history?limit=50&offset=0")
+      .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
 
     expect(Array.isArray(historyResponse.body)).toBe(true);
@@ -101,7 +112,7 @@ describe('Puzzle Solving E2E Test', () => {
 
     // Find the attempt we just created
     const savedAttempt = historyResponse.body.find(
-      (attempt: any) => attempt.id === attemptId,
+      (attempt: AttemptResponse) => attempt.id === attemptId,
     );
 
     expect(savedAttempt).toBeDefined();
@@ -111,6 +122,6 @@ describe('Puzzle Solving E2E Test', () => {
     expect(savedAttempt.moves).toEqual(movesArray);
     expect(savedAttempt.timeSpentSeconds).toBe(45);
     expect(savedAttempt.hintsUsed).toBe(0);
-    expect(savedAttempt).toHaveProperty('puzzle');
+    expect(savedAttempt).toHaveProperty("puzzle");
   });
 });

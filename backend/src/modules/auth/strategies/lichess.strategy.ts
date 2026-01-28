@@ -24,7 +24,11 @@ export class LichessStrategy extends PassportStrategy(Strategy, "lichess") {
     });
   }
 
-  async validate(accessToken: string, _refreshToken: string, _profile: unknown) {
+  async validate(
+    accessToken: string,
+    _refreshToken: string,
+    _profile: unknown,
+  ) {
     // Fetch actual user data from Lichess API
     const response = await fetch("https://lichess.org/api/account", {
       headers: {

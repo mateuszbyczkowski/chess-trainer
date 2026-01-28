@@ -63,8 +63,8 @@ export const guestStorage = {
   /**
    * Check if current user is a localStorage-only guest
    */
-  isLocalGuest(user: any): boolean {
-    return user?.isGuest === true && user?.id?.startsWith('guest-');
+  isLocalGuest(user: { isGuest?: boolean; id?: string } | null | undefined): boolean {
+    return user?.isGuest === true && (user?.id?.startsWith('guest-') ?? false);
   },
 
   /**

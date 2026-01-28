@@ -3,6 +3,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
 import { Request } from "express";
+import { User } from "@entities/index";
 
 @ApiTags("Users")
 @Controller("users")
@@ -19,8 +20,8 @@ export class UsersController {
   @Patch("profile")
   @UseGuards(AuthGuard("jwt"))
   @ApiBearerAuth()
-  async updateProfile(@Req() req: Request, @Body() data: any) {
-    const user = req.user as any;
+  async updateProfile(@Req() req: Request, @Body() data: Partial<User>) {
+    const user = req.user as User;
     return this.usersService.update(user.id, data);
   }
 }

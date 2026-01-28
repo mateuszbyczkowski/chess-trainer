@@ -8,6 +8,18 @@
  * Migration v2: Transform data structure (movesMade string -> moves array)
  */
 
+interface LegacyAttempt {
+  id?: string;
+  puzzleId: string;
+  solved?: boolean;
+  moves?: string[] | string;
+  movesMade?: string | string[];
+  timeSpent?: number;
+  timeSpentSeconds?: number;
+  attemptedAt?: string;
+  timestamp?: string;
+}
+
 const MIGRATION_VERSION = 2;
 
 export function migrateGuestData() {
@@ -25,7 +37,7 @@ export function migrateGuestData() {
 
     // Migrate and transform guest attempts
     const oldAttempts = localStorage.getItem('guestAttempts');
-    let newAttempts = localStorage.getItem('chess_trainer_guest_attempts');
+    const newAttempts = localStorage.getItem('chess_trainer_guest_attempts');
 
     // Determine which source to use
     let sourceData = null;
@@ -48,7 +60,7 @@ export function migrateGuestData() {
         const parsedAttempts = JSON.parse(sourceData);
 
         // Transform data structure to ensure correct format
-        const transformedAttempts = parsedAttempts.map((attempt: any) => {
+        const transformedAttempts = parsedAttempts.map((attempt: LegacyAttempt) => {
           // Old structure might have movesMade as string, new expects moves as array
           let moves = attempt.moves;
 

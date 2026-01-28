@@ -24,7 +24,7 @@ export function GuestWarningBanner() {
             <span className="text-yellow-600 text-xl">⚠️</span>
             <div>
               <p className="text-sm font-medium text-yellow-800">
-                You're playing as a guest
+                You&apos;re playing as a guest
               </p>
               <p className="text-xs text-yellow-700">
                 Your progress is saved in your browser only. To save permanently across devices,{' '}

@@ -12,6 +12,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { SessionsService } from "./sessions.service";
 import { Request } from "express";
+import { TrainingSession, User } from "@entities/index";
 
 @ApiTags("Training Sessions")
 @Controller("sessions")
@@ -21,8 +22,11 @@ export class SessionsController {
   @Post()
   @UseGuards(AuthGuard("jwt"))
   @ApiBearerAuth()
-  async createSession(@Req() req: Request, @Body() data: any) {
-    const user = req.user as any;
+  async createSession(
+    @Req() req: Request,
+    @Body() data: Partial<TrainingSession>,
+  ) {
+    const user = req.user as User;
     return this.sessionsService.create(user.id, data);
   }
 
@@ -30,7 +34,7 @@ export class SessionsController {
   @UseGuards(AuthGuard("jwt"))
   @ApiBearerAuth()
   async getSessions(@Req() req: Request) {
-    const user = req.user as any;
+    const user = req.user as User;
     return this.sessionsService.findByUser(user.id);
   }
 
@@ -44,7 +48,10 @@ export class SessionsController {
   @Patch(":id")
   @UseGuards(AuthGuard("jwt"))
   @ApiBearerAuth()
-  async updateSession(@Param("id") id: string, @Body() data: any) {
+  async updateSession(
+    @Param("id") id: string,
+    @Body() data: Partial<TrainingSession>,
+  ) {
     return this.sessionsService.update(id, data);
   }
 }

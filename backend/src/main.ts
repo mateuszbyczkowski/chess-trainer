@@ -13,7 +13,9 @@ async function bootstrap() {
   // Session configuration (required for OAuth)
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || "chess-trainer-secret-change-in-production",
+      secret:
+        process.env.SESSION_SECRET ||
+        "chess-trainer-secret-change-in-production",
       resave: false,
       saveUninitialized: false,
       cookie: {

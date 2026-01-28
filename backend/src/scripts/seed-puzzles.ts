@@ -3,6 +3,11 @@ import { join } from "path";
 import { config } from "dotenv";
 import { v4 as uuidv4 } from "uuid";
 
+interface ThemeCount {
+  theme: string;
+  count: string;
+}
+
 // Load environment variables
 config({ path: join(__dirname, "../../.env") });
 
@@ -281,7 +286,7 @@ async function seedPuzzles() {
       .getRawMany();
 
     console.log("\n📊 Top themes in database:");
-    themes.forEach((t: any) => {
+    themes.forEach((t: ThemeCount) => {
       console.log(`   ${t.theme}: ${t.count}`);
     });
 

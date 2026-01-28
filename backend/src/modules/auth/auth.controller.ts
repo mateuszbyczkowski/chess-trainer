@@ -16,6 +16,11 @@ import { User } from "@entities/index";
 import { ConfigService } from "@nestjs/config";
 import * as crypto from "crypto";
 
+interface SessionData {
+  lichess_code_verifier?: string;
+  lichess_state?: string;
+}
+
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
@@ -26,7 +31,7 @@ export class AuthController {
 
   @Get("lichess")
   @ApiOperation({ summary: "Initiate Lichess OAuth flow" })
-  async lichessAuth(@Res() res: Response, @Session() session: any) {
+  async lichessAuth(@Res() res: Response, @Session() session: SessionData) {
     // Generate PKCE code verifier and challenge
     const codeVerifier = crypto.randomBytes(32).toString("base64url");
     const codeChallenge = crypto
@@ -67,7 +72,7 @@ export class AuthController {
     @Query("state") state: string,
     @Req() req: Request,
     @Res() res: Response,
-    @Session() session: any,
+    @Session() session: SessionData,
   ) {
     // Verify state for CSRF protection
     if (!state || state !== session.lichess_state) {

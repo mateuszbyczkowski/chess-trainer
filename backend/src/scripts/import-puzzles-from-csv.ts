@@ -39,6 +39,16 @@ interface PuzzleData {
   openingTags?: string[];
 }
 
+interface RatingDistribution {
+  rating_range: string;
+  count: string;
+}
+
+interface ThemeCount {
+  theme: string;
+  count: string;
+}
+
 async function importPuzzlesFromCSV() {
   // Get CSV file path from command line args
   const csvFilePath = process.argv[2];
@@ -47,7 +57,9 @@ async function importPuzzlesFromCSV() {
   if (!csvFilePath) {
     console.error("❌ Please provide CSV file path");
     console.log("Usage: npm run import:puzzles -- <csv-file-path> [limit]");
-    console.log("Example: npm run import:puzzles -- lichess_db_puzzle.csv 1000");
+    console.log(
+      "Example: npm run import:puzzles -- lichess_db_puzzle.csv 1000",
+    );
     process.exit(1);
   }
 
@@ -146,7 +158,9 @@ async function importPuzzlesFromCSV() {
           fen,
           moves,
           rating: parseInt(rating),
-          ratingDeviation: ratingDeviation ? parseInt(ratingDeviation) : undefined,
+          ratingDeviation: ratingDeviation
+            ? parseInt(ratingDeviation)
+            : undefined,
           popularity: parseInt(popularity),
           nbPlays: parseInt(nbPlays),
           themes: themes ? themes.split(" ") : [],
@@ -200,7 +214,7 @@ async function importPuzzlesFromCSV() {
       .getRawMany();
 
     console.log("\n   Rating distribution:");
-    ratingDistribution.forEach((r: any) => {
+    ratingDistribution.forEach((r: RatingDistribution) => {
       const range = `${r.rating_range}-${parseInt(r.rating_range) + 199}`;
       console.log(`   ${range}: ${r.count} puzzles`);
     });
@@ -215,7 +229,7 @@ async function importPuzzlesFromCSV() {
       .getRawMany();
 
     console.log("\n   Top 10 themes:");
-    topThemes.forEach((t: any) => {
+    topThemes.forEach((t: ThemeCount) => {
       console.log(`   ${t.theme}: ${t.count}`);
     });
 

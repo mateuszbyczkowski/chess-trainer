@@ -23,7 +23,10 @@ export class AttemptsController {
   @Post()
   @UseGuards(AuthGuard("jwt"))
   @ApiBearerAuth()
-  async createAttempt(@Req() req: Request, @Body() data: Partial<PuzzleAttempt>) {
+  async createAttempt(
+    @Req() req: Request,
+    @Body() data: Partial<PuzzleAttempt>,
+  ) {
     const user = req.user as User;
     return this.attemptsService.create({
       userId: user.id,
