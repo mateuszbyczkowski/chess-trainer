@@ -39,7 +39,7 @@ export class StatsService {
     };
   }
 
-  async getByTheme(userId: string) {
+  async getByTheme(_userId: string) {
     // TODO: Implement theme-based statistics
     return [];
   }

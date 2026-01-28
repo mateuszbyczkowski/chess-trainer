@@ -5,6 +5,24 @@ import { Repository } from "typeorm";
 import { User } from "@entities/user.entity";
 import { v4 as uuidv4 } from "uuid";
 
+interface LichessProfile {
+  id: string;
+  username: string;
+  email?: string;
+  displayName?: string;
+  blitzRating?: number;
+  rapidRating?: number;
+  avatar?: string;
+  rating?: number;
+}
+
+interface GoogleProfile {
+  id: string;
+  email: string;
+  displayName?: string;
+  picture?: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -30,7 +48,7 @@ export class AuthService {
     };
   }
 
-  async findOrCreateLichessUser(profile: any): Promise<User> {
+  async findOrCreateLichessUser(profile: LichessProfile): Promise<User> {
     let user = await this.userRepository.findOne({
       where: { lichessId: profile.id },
     });
@@ -51,7 +69,7 @@ export class AuthService {
     return user;
   }
 
-  async findOrCreateGoogleUser(profile: any): Promise<User> {
+  async findOrCreateGoogleUser(profile: GoogleProfile): Promise<User> {
     let user = await this.userRepository.findOne({
       where: { googleId: profile.id },
     });

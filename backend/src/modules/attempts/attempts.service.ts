@@ -33,7 +33,7 @@ export class AttemptsService {
     puzzleId: string,
     userId?: string,
   ): Promise<PuzzleAttempt[]> {
-    const where: any = { puzzleId };
+    const where: { puzzleId: string; userId?: string } = { puzzleId };
     if (userId) {
       where.userId = userId;
     }

@@ -13,17 +13,18 @@ export class LichessStrategy extends PassportStrategy(Strategy, "lichess") {
     super({
       authorizationURL: "https://lichess.org/oauth",
       tokenURL: "https://lichess.org/api/token",
-      clientID: configService.get("LICHESS_CLIENT_ID"),
-      clientSecret: configService.get("LICHESS_CLIENT_SECRET") || "",
+      clientID: configService.get("LICHESS_CLIENT_ID") || "chess-trainer",
+      // Lichess uses PKCE without client secret (public client)
+      clientSecret: "",
       callbackURL: configService.get("LICHESS_REDIRECT_URI"),
       scope: ["email:read"],
-      // IMPORTANT: Lichess requires PKCE for security
-      pkce: true,
+      // REQUIRED: Lichess requires PKCE with S256
+      pkce: "S256",
       state: true,
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any) {
+  async validate(accessToken: string, _refreshToken: string, _profile: unknown) {
     // Fetch actual user data from Lichess API
     const response = await fetch("https://lichess.org/api/account", {
       headers: {
