@@ -17,6 +17,7 @@ import { StatsPage } from '@pages/StatsPage';
 // Components
 import { Layout } from '@components/layout/Layout';
 import { AuthProvider } from '@contexts/AuthContext';
+import { FirstVisitRedirect } from '@components/FirstVisitRedirect';
 
 // Auth provider for Refine
 const authProvider = {
@@ -64,6 +65,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <FirstVisitRedirect />
         <Refine
           dataProvider={dataProvider(API_URL)}
           authProvider={authProvider}
