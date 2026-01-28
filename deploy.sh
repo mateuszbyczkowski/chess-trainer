@@ -25,7 +25,7 @@ echo ""
 
 echo "🔨 Step 2: Installing backend dependencies..."
 cd backend
-npm ci --production
+npm ci
 echo "✅ Dependencies installed"
 echo ""
 

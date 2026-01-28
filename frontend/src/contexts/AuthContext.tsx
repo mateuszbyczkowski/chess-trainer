@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authApi, User } from '@services/api';
+import { guestStorage } from '@services/guestStorage';
 
 interface AuthContextType {
   user: User | null;
@@ -18,12 +19,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check if user is logged in on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('accessToken');
       const storedUser = localStorage.getItem('user');
 
-      if (token && storedUser) {
+      if (storedUser) {
         try {
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+
+          // Check if it's a local guest or authenticated user
+          if (guestStorage.isLocalGuest(parsedUser)) {
+            // Local guest - no token needed
+            setUser(parsedUser);
+          } else {
+            // Authenticated user - check for token
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+              setUser(parsedUser);
+            } else {
+              // Token missing for authenticated user
+              localStorage.removeItem('user');
+            }
+          }
         } catch (error) {
           console.error('Failed to parse stored user:', error);
           localStorage.removeItem('user');
@@ -39,11 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (type: 'guest' | 'lichess' | 'google') => {
     try {
       if (type === 'guest') {
-        const response = await authApi.guestLogin();
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        setUser(response.user);
+        // Create local-only guest (no backend call)
+        const localGuest = guestStorage.createGuestUser();
+        localStorage.setItem('user', JSON.stringify(localGuest));
+        setUser(localGuest);
       } else if (type === 'lichess') {
         await authApi.lichessLogin();
       } else if (type === 'google') {
@@ -57,8 +71,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await authApi.logout();
-      setUser(null);
+      // If local guest, just clear localStorage
+      if (user && guestStorage.isLocalGuest(user)) {
+        guestStorage.clearAll();
+        localStorage.removeItem('user');
+        setUser(null);
+      } else {
+        // For authenticated users, call backend
+        await authApi.logout();
+        setUser(null);
+      }
     } catch (error) {
       console.error('Logout failed:', error);
     }

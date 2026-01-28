@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
+import { guestStorage } from './guestStorage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3009/api';
 
@@ -183,6 +184,32 @@ export const attemptsApi = {
     timeSpent: number,
     movesMade: string
   ): Promise<PuzzleAttempt> => {
+    // Check if current user is a local guest
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (user && guestStorage.isLocalGuest(user)) {
+      // Save to localStorage for local guests
+      const guestAttempt = guestStorage.saveAttempt({
+        puzzleId,
+        solved,
+        moves: movesMade.split(' '),
+        timeSpent,
+      });
+
+      // Convert to PuzzleAttempt format
+      return {
+        id: guestAttempt.id,
+        userId: user.id,
+        puzzleId: guestAttempt.puzzleId,
+        solved: guestAttempt.solved,
+        timeSpent: guestAttempt.timeSpent,
+        movesMade: guestAttempt.moves.join(' '),
+        createdAt: guestAttempt.attemptedAt,
+      };
+    }
+
+    // For authenticated users, save to backend
     const { data } = await apiClient.post<PuzzleAttempt>('/attempts', {
       puzzleId,
       solved,
@@ -201,6 +228,44 @@ export const attemptsApi = {
     page: number;
     totalPages: number;
   }> => {
+    // Check if current user is a local guest
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (user && guestStorage.isLocalGuest(user)) {
+      // Get from localStorage for local guests
+      const guestAttempts = guestStorage.getAttempts();
+
+      // Sort by date (newest first)
+      const sorted = [...guestAttempts].sort(
+        (a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime()
+      );
+
+      // Paginate
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedAttempts = sorted.slice(start, end);
+
+      // Convert to PuzzleAttempt format
+      const data: PuzzleAttempt[] = paginatedAttempts.map((attempt) => ({
+        id: attempt.id,
+        userId: user.id,
+        puzzleId: attempt.puzzleId,
+        solved: attempt.solved,
+        timeSpent: attempt.timeSpent,
+        movesMade: attempt.moves.join(' '),
+        createdAt: attempt.attemptedAt,
+      }));
+
+      return {
+        data,
+        total: guestAttempts.length,
+        page,
+        totalPages: Math.ceil(guestAttempts.length / limit),
+      };
+    }
+
+    // For authenticated users, fetch from backend
     const { data } = await apiClient.get('/attempts/history', {
       params: { page, limit },
     });
@@ -211,6 +276,24 @@ export const attemptsApi = {
 // Stats API
 export const statsApi = {
   getUserStats: async (): Promise<UserStats> => {
+    // Check if current user is a local guest
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (user && guestStorage.isLocalGuest(user)) {
+      // Get stats from localStorage for local guests
+      const stats = guestStorage.getStats();
+      return {
+        totalAttempts: stats.totalAttempts,
+        totalSolved: stats.totalSolved,
+        averageRating: 0, // Not calculated for guests
+        successRate: stats.successRate,
+        currentStreak: stats.currentStreak,
+        longestStreak: stats.longestStreak,
+      };
+    }
+
+    // For authenticated users, fetch from backend
     const { data } = await apiClient.get('/stats/overview');
     // Map backend response to frontend interface
     return {
@@ -226,6 +309,16 @@ export const statsApi = {
   getThemeStats: async (): Promise<
     { theme: string; attempted: number; solved: number; successRate: number }[]
   > => {
+    // Check if current user is a local guest
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (user && guestStorage.isLocalGuest(user)) {
+      // Return empty array for local guests (theme stats not tracked in localStorage)
+      return [];
+    }
+
+    // For authenticated users, fetch from backend
     const { data } = await apiClient.get('/stats/by-theme');
     return data;
   },
@@ -233,6 +326,16 @@ export const statsApi = {
   getRatingProgress: async (): Promise<
     { date: string; averageRating: number }[]
   > => {
+    // Check if current user is a local guest
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (user && guestStorage.isLocalGuest(user)) {
+      // Return empty array for local guests (rating progress not tracked in localStorage)
+      return [];
+    }
+
+    // For authenticated users, fetch from backend
     const { data } = await apiClient.get('/stats/rating-progress');
     return data;
   },
