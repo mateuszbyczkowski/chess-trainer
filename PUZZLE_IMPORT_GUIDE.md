@@ -8,9 +8,39 @@ This guide explains how to import chess puzzles from the Lichess database into y
 - Password for SSH authentication
 - `zstd` decompression tool (already installed on server)
 
-## Recommended Method: Download Directly on Server
+## Method 1: Manual SSH (Simplest) ⭐
 
-**This is the easiest and fastest approach** - downloads puzzles directly on the server:
+**Best for network connectivity issues** - Run commands directly on the server:
+
+### Step 1: SSH into the server
+```bash
+ssh jan191@srv37.mikr.us
+cd /var/www/chess-trainer
+```
+
+### Step 2: Copy the import script to the server
+```bash
+# Copy the script content to server (one-time setup)
+wget https://raw.githubusercontent.com/mateuszbyczkowski/chess-trainer/main/server-import-puzzles.sh
+chmod +x server-import-puzzles.sh
+```
+
+### Step 3: Run the import
+```bash
+# Import limited number (recommended)
+./server-import-puzzles.sh 100000  # First 100,000 puzzles
+
+# Or import all puzzles
+./server-import-puzzles.sh
+```
+
+**Skip to "Verification" section below** if using this method.
+
+---
+
+## Method 2: Automated via SSH (From Local Machine)
+
+**Requires network access to srv37.mikr.us from your machine:**
 
 ```bash
 # Import limited number (recommended for testing)
@@ -20,18 +50,11 @@ This guide explains how to import chess puzzles from the Lichess database into y
 ./download-and-import-puzzles.sh
 ```
 
-This script will:
-1. SSH into the server
-2. Download puzzles from Lichess (if not already downloaded)
-3. Decompress the file
-4. Import into database
-5. Show progress and statistics
-
-**Skip to "Verification" section below** if using this method.
+This script will SSH into the server and run the import automatically.
 
 ---
 
-## Alternative Method 1: Upload from Local Machine
+## Method 3: Upload from Local Machine
 
 If you already have the file locally and have network access to the server:
 
@@ -195,10 +218,11 @@ psql -h psql01.mikr.us -U jan191 -d db_jan191 -c "
 
 ## Files
 
+- `server-import-puzzles.sh` - ⭐ Run directly on server (simplest, recommended)
+- `download-and-import-puzzles.sh` - SSH in and import (requires network access from local)
 - `upload-puzzles.sh` - Uploads CSV file to server via SCP (requires network access)
-- `download-and-import-puzzles.sh` - Downloads puzzles directly on server and imports (recommended)
 - `import-puzzles-remote.sh` - Runs import on server (if file already uploaded)
-- `backend/src/scripts/import-puzzles-from-csv.ts` - Import script (runs on server)
+- `backend/src/scripts/import-puzzles-from-csv.ts` - Core import script (used by all methods)
 
 ## Production URLs
 
