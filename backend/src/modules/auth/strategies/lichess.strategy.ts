@@ -14,8 +14,7 @@ export class LichessStrategy extends PassportStrategy(Strategy, "lichess") {
       authorizationURL: "https://lichess.org/oauth",
       tokenURL: "https://lichess.org/api/token",
       clientID: configService.get("LICHESS_CLIENT_ID"),
-      // Lichess doesn't use client secret (public client with PKCE)
-      clientSecret: "not_required",
+      clientSecret: configService.get("LICHESS_CLIENT_SECRET") || "",
       callbackURL: configService.get("LICHESS_REDIRECT_URI"),
       scope: ["email:read"],
       // IMPORTANT: Lichess requires PKCE for security
