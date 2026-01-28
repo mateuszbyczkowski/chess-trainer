@@ -54,12 +54,30 @@ else
   echo ""
 fi
 
-# Decompress if needed
+# Check for decompression tools
 if [ ! -f "lichess_db_puzzle.csv" ]; then
   echo "📦 Decompressing lichess_db_puzzle.csv.zst..."
-  zstd -d lichess_db_puzzle.csv.zst -o lichess_db_puzzle.csv
-  echo "✅ Decompression complete"
-  echo ""
+
+  # Try zstd first
+  if command -v zstd &> /dev/null; then
+    zstd -d lichess_db_puzzle.csv.zst -o lichess_db_puzzle.csv
+    echo "✅ Decompression complete"
+    echo ""
+  # Try unzstd as fallback
+  elif command -v unzstd &> /dev/null; then
+    unzstd lichess_db_puzzle.csv.zst -o lichess_db_puzzle.csv
+    echo "✅ Decompression complete"
+    echo ""
+  else
+    echo "❌ ERROR: zstd decompression tool not found!"
+    echo ""
+    echo "Please install zstd:"
+    echo "  sudo apt-get update && sudo apt-get install -y zstd"
+    echo ""
+    echo "Or if you don't have sudo access, contact your hosting provider."
+    echo ""
+    exit 1
+  fi
 else
   echo "✅ CSV file already decompressed"
   echo ""

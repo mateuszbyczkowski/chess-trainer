@@ -6,11 +6,11 @@ This guide explains how to import chess puzzles from the Lichess database into y
 
 - SSH access to `jan191@srv37.mikr.us`
 - Password for SSH authentication
-- `zstd` decompression tool (already installed on server)
+- `zstd` decompression tool on server (install if needed: `sudo apt-get install -y zstd`)
 
-## Method 1: Manual SSH (Simplest) ⭐
+## How to Import Puzzles
 
-**Best for network connectivity issues** - Run commands directly on the server:
+**Run commands directly on the server** - Best approach for reliability:
 
 ### Step 1: SSH into the server
 ```bash
@@ -18,9 +18,8 @@ ssh jan191@srv37.mikr.us
 cd /var/www/chess-trainer
 ```
 
-### Step 2: Copy the import script to the server
+### Step 2: Copy the import script to the server (one-time setup)
 ```bash
-# Copy the script content to server (one-time setup)
 wget https://raw.githubusercontent.com/mateuszbyczkowski/chess-trainer/main/server-import-puzzles.sh
 chmod +x server-import-puzzles.sh
 ```
@@ -34,123 +33,42 @@ chmod +x server-import-puzzles.sh
 ./server-import-puzzles.sh
 ```
 
-**Skip to "Verification" section below** if using this method.
+The script will:
+1. Download the Lichess puzzle database from https://database.lichess.org
+2. Decompress the `.zst` file
+3. Import puzzles into the production database
+4. Show progress and statistics
 
----
-
-## Method 2: Automated via SSH (From Local Machine)
-
-**Requires network access to srv37.mikr.us from your machine:**
-
-```bash
-# Import limited number (recommended for testing)
-./download-and-import-puzzles.sh 100000  # Import first 100,000 puzzles
-
-# Or import all puzzles (may hit database limit)
-./download-and-import-puzzles.sh
+**Expected output:**
 ```
+🧩 Lichess Puzzles Server Import Script
+========================================
 
-This script will SSH into the server and run the import automatically.
+📊 Import limit: 100000 puzzles
 
----
-
-## Method 3: Upload from Local Machine
-
-If you already have the file locally and have network access to the server:
-
-### Prerequisites
-
-1. **Download Lichess Puzzle Database**
-   - Go to: https://database.lichess.org/#puzzles
-   - Download the latest `lichess_db_puzzle.csv.zst` file
-   - Place it in the project root directory
-
-## Step 1: Upload Puzzles to Server
-
-Upload the compressed puzzle database to the production server:
-
-```bash
-./upload-puzzles.sh
-```
-
-This script will:
-- Check if `lichess_db_puzzle.csv.zst` exists locally
-- Prompt for your SSH password
-- Upload the file to `/var/www/chess-trainer/` on the server
-- Show upload progress and file size
-
-**Output:**
-```
-📤 Lichess Puzzles Upload Script
-=================================
-
-📁 Found: lichess_db_puzzle.csv.zst (123M)
-
-🎯 Uploading to: jan191@srv37.mikr.us:/var/www/chess-trainer
-
-⚠️  You will be prompted for your SSH password
-
-[Password prompt]
-lichess_db_puzzle.csv.zst   100%  123MB   5.2MB/s   00:23
-
-✅ Upload Complete!
-```
-
-## Step 2: Import Puzzles into Database
-
-Import the puzzles into your production PostgreSQL database:
-
-```bash
-# Import ALL puzzles (can take a while with millions of puzzles)
-./import-puzzles-remote.sh
-
-# OR import a limited number (recommended for testing)
-./import-puzzles-remote.sh 1000    # Import first 1000 puzzles
-./import-puzzles-remote.sh 10000   # Import first 10,000 puzzles
-```
-
-This script will:
-1. Prompt for your SSH password
-2. SSH into the server
-3. Decompress the `.zst` file (if not already done)
-4. Run the import script
-5. Show progress (batch processing in groups of 100)
-6. Display statistics when complete
-
-**Output:**
-```
-🧩 Lichess Puzzles Import Script (Remote)
-==========================================
-
-📊 Import limit: 1000 puzzles
-🎯 Server: jan191@srv37.mikr.us
-
-⚠️  You will be prompted for your SSH password
-
-This will:
-  1. Decompress the .zst file
-  2. Import puzzles into the production database
-  3. Show progress and statistics
+📂 Current directory: /var/www/chess-trainer
 
 Continue? (y/N) y
 
-🚀 Starting import...
+📥 Downloading Lichess puzzle database...
+   URL: https://database.lichess.org/lichess_db_puzzle.csv.zst
+   This may take a while (file is ~500MB compressed)...
 
-📂 Current directory: /var/www/chess-trainer/backend
+✅ Download complete
 
 📦 Decompressing lichess_db_puzzle.csv.zst...
 ✅ Decompression complete
 
 🔄 Running import script...
 
-🔧 Importing first 1000 puzzles...
+🔧 Importing first 100000 puzzles...
 🧩 Importing Lichess Puzzles...
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% | 1000/1000 | ETA: 0s
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% | 100000/100000 | ETA: 0s
 
 📊 Import Statistics:
-  Total Puzzles: 1000
-  Successfully Imported: 995
-  Duplicates Skipped: 5
+  Total Puzzles: 100000
+  Successfully Imported: 99800
+  Duplicates Skipped: 200
   Errors: 0
 
 ✅ Import Complete!
@@ -179,9 +97,9 @@ psql -h psql01.mikr.us -U jan191 -d db_jan191 -c "
 
 ## Troubleshooting
 
-### "lichess_db_puzzle.csv.zst not found"
-- Make sure the file is in the project root directory before running `upload-puzzles.sh`
-- Download from: https://database.lichess.org/#puzzles
+### "zstd: command not found"
+- Install zstd on the server: `sudo apt-get update && sudo apt-get install -y zstd`
+- If you don't have sudo access, contact your hosting provider
 
 ### "Connection refused" or "Permission denied"
 - Check your SSH credentials
@@ -193,7 +111,7 @@ psql -h psql01.mikr.us -U jan191 -d db_jan191 -c "
 
 ### Import is very slow
 - The full Lichess database contains millions of puzzles
-- Use a limit for faster testing: `./import-puzzles-remote.sh 1000`
+- Use a limit for faster testing: `./server-import-puzzles.sh 100000`
 - Full import can take hours depending on server resources
 
 ### "Duplicate key error"
@@ -218,11 +136,8 @@ psql -h psql01.mikr.us -U jan191 -d db_jan191 -c "
 
 ## Files
 
-- `server-import-puzzles.sh` - ⭐ Run directly on server (simplest, recommended)
-- `download-and-import-puzzles.sh` - SSH in and import (requires network access from local)
-- `upload-puzzles.sh` - Uploads CSV file to server via SCP (requires network access)
-- `import-puzzles-remote.sh` - Runs import on server (if file already uploaded)
-- `backend/src/scripts/import-puzzles-from-csv.ts` - Core import script (used by all methods)
+- `server-import-puzzles.sh` - Import script to run directly on server (recommended)
+- `backend/src/scripts/import-puzzles-from-csv.ts` - Core import script (called by shell script)
 
 ## Production URLs
 
