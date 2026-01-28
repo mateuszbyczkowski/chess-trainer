@@ -3,6 +3,8 @@ import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import pg from "pg";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,9 +12,20 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix("api");
 
+  // Session store configuration - use PostgreSQL for persistence
+  const PgSession = connectPgSimple(session);
+  const pgPool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+
   // Session configuration (required for OAuth)
   app.use(
     session({
+      store: new PgSession({
+        pool: pgPool,
+        tableName: "session", // Will be created automatically
+        createTableIfMissing: true,
+      }),
       secret:
         process.env.SESSION_SECRET ||
         "chess-trainer-secret-change-in-production",
@@ -21,8 +34,9 @@ async function bootstrap() {
       cookie: {
         maxAge: 3600000, // 1 hour
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        // For HTTP deployment (mikr.us without HTTPS), keep secure: false
+        secure: false,
+        sameSite: "lax",
       },
     }),
   );

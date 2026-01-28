@@ -16,7 +16,7 @@ export function Layout({ children }: LayoutProps) {
       </main>
       <footer className="mt-auto py-6 bg-white border-t border-gray-200">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          <p>Chess Trainer &copy; 2024 - Sharpen your tactics, master your game</p>
+          <p>Chess Trainer &copy; 2026 - Created by Mateusz Byczkowski - Sharpen your tactics, master your game</p>
         </div>
       </footer>
     </div>
