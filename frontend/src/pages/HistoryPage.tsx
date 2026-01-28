@@ -3,17 +3,9 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import { attemptsApi, PuzzleAttempt } from '@services/api';
 
-interface GuestAttempt {
-  puzzleId: string;
-  solved: boolean;
-  timeSpent: number;
-  movesMade: string;
-  timestamp: string;
-}
-
 export function HistoryPage() {
   const { user } = useAuth();
-  const [attempts, setAttempts] = useState<(PuzzleAttempt | GuestAttempt)[]>([]);
+  const [attempts, setAttempts] = useState<PuzzleAttempt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,15 +15,9 @@ export function HistoryPage() {
         setIsLoading(true);
         setError(null);
 
-        if (user?.isGuest) {
-          // Load from localStorage for guest users
-          const guestAttempts = JSON.parse(localStorage.getItem('guestAttempts') || '[]');
-          setAttempts(guestAttempts.reverse()); // Most recent first
-        } else {
-          // Fetch from API for authenticated users
-          const response = await attemptsApi.getUserHistory(1, 100);
-          setAttempts(response.data);
-        }
+        // attemptsApi.getUserHistory() handles both guests (localStorage) and authenticated users (API)
+        const response = await attemptsApi.getUserHistory(1, 100);
+        setAttempts(response.data);
       } catch (err) {
         console.error('Failed to load history:', err);
         setError('Failed to load puzzle history');
@@ -120,14 +106,10 @@ export function HistoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {attempts.map((attempt, index) => {
-                  const isGuestAttempt = 'timestamp' in attempt;
-                  const date = isGuestAttempt ? attempt.timestamp : (attempt as PuzzleAttempt).createdAt;
-
-                  return (
+                {attempts.map((attempt, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4 text-sm text-gray-600">
-                        {formatDate(date)}
+                        {formatDate(attempt.createdAt)}
                       </td>
                       <td className="py-3 px-4 text-sm font-mono">
                         {attempt.puzzleId.substring(0, 8)}...
@@ -156,8 +138,7 @@ export function HistoryPage() {
                         </Link>
                       </td>
                     </tr>
-                  );
-                })}
+                ))}
               </tbody>
             </table>
           </div>

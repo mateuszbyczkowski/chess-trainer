@@ -7,7 +7,7 @@ export function Header() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate('/login');
   };
 
   return (
@@ -33,7 +33,7 @@ export function Header() {
               Stats
             </Link>
 
-            {user && (
+            {user ? (
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600">
                   {user.displayName}
@@ -42,6 +42,10 @@ export function Header() {
                   Logout
                 </button>
               </div>
+            ) : (
+              <Link to="/login" className="btn-primary">
+                Login
+              </Link>
             )}
           </div>
         </div>

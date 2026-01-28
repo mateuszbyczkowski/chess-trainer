@@ -17,7 +17,7 @@ import { StatsPage } from '@pages/StatsPage';
 // Components
 import { Layout } from '@components/layout/Layout';
 import { AuthProvider } from '@contexts/AuthContext';
-import { FirstVisitRedirect } from '@components/FirstVisitRedirect';
+import { ProtectedRoute } from '@components/ProtectedRoute';
 
 // Auth provider for Refine
 const authProvider = {
@@ -65,7 +65,6 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <FirstVisitRedirect />
         <Refine
           dataProvider={dataProvider(API_URL)}
           authProvider={authProvider}
@@ -98,9 +97,11 @@ function App() {
 
             <Route
               element={
-                <Layout>
-                  <Outlet />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Outlet />
+                  </Layout>
+                </ProtectedRoute>
               }
             >
               <Route index element={<NavigateToResource resource="dashboard" />} />

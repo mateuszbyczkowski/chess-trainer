@@ -111,7 +111,144 @@ useEffect(() => {
 
 ---
 
-### 3. Puzzle Themes & Openings Implementation
+### 3. Guest History Bug Fix
+
+**Status:** ✅ Fixed, Ready for Commit
+
+**Description:** Guest users were not seeing their puzzle history on the History page, and statistics on Dashboard showed 0 despite having solved puzzles.
+
+**Problem:**
+- HistoryPage.tsx had the same issue as StatsPage (see #2 above)
+- Used duplicate localStorage code with wrong key `guestAttempts`
+- Should have been using `chess_trainer_guest_attempts` (with prefix)
+- Code checked `if (user?.isGuest)` which incorrectly matched server-backed guests who have data in the database
+- Code was not using the centralized `attemptsApi.getUserHistory()` that already handles both guests and authenticated users
+
+**Solution:**
+- Removed duplicate localStorage logic (lines 26-29 and GuestAttempt interface)
+- Simplified to use `attemptsApi.getUserHistory()` which already handles:
+  - Local-only guests (ID starts with `guest-`) → reads from localStorage with correct key `chess_trainer_guest_attempts`
+  - Server-backed guests → fetches from API/database
+  - Authenticated users → fetches from API/database
+
+**Files Changed:**
+- `frontend/src/pages/HistoryPage.tsx` - Simplified history fetching logic
+
+**Code Reference:**
+```typescript
+// Before: Had duplicate localStorage logic with wrong key and wrong condition
+if (user?.isGuest) {
+  const guestAttempts = JSON.parse(localStorage.getItem('guestAttempts') || '[]');
+  setAttempts(guestAttempts.reverse());
+} else {
+  const response = await attemptsApi.getUserHistory(1, 100);
+  setAttempts(response.data);
+}
+
+// After: Unified API call
+// attemptsApi.getUserHistory() handles both guests (localStorage) and authenticated users (API)
+const response = await attemptsApi.getUserHistory(1, 100);
+setAttempts(response.data);
+```
+
+**Impact:**
+- Fixes Dashboard showing 0 statistics when History page has data
+- Fixes History page not displaying puzzles for guest users
+- Both local-only guests and server-backed guests now work correctly
+
+**To Document:**
+- Add to GUEST_MODE_IMPLEMENTATION.md under "Bug Fixes" section
+- Mention in README.md changelog
+
+---
+
+### 4. Authentication & Route Protection Fixes
+
+**Status:** ✅ Fixed, Ready for Commit
+
+**Description:** After logout, users could still access protected routes, no login button was visible, and users weren't redirected to login page.
+
+**Problems:**
+1. **Logout navigation issue**: After logout, user was navigated to `/` (dashboard) instead of `/login`
+2. **Missing login button**: Header only showed logout button when user existed, but no login button when logged out
+3. **No route protection**: All routes (dashboard, puzzles, history, stats) were accessible even without authentication
+4. **FirstVisitRedirect limitation**: Only redirected first-time visitors, not logged-out users returning to the site
+
+**Solution:**
+1. **Fixed logout redirect**: Changed Header's `handleLogout` to navigate to `/login` instead of `/`
+2. **Added login button**: Header now shows "Login" button when user is not authenticated (though this is mostly for convenience since logged-out users are redirected to login)
+3. **Created ProtectedRoute component**: New wrapper component that checks authentication and redirects to `/login` if user is null (no user or guest)
+4. **Removed FirstVisitRedirect**: No longer needed since ProtectedRoute handles all unauthenticated access
+
+**User Flow:**
+- Unauthenticated users are redirected to `/login`
+- On login page, users MUST choose one of:
+  - Continue as Guest (creates local-only guest user)
+  - Login with Lichess (OAuth)
+  - Login with Google (OAuth)
+- Only after making a choice can users access protected routes (dashboard, puzzles, history, stats)
+- After logout, users return to `/login` to choose again
+
+**Files Changed:**
+- `frontend/src/components/layout/Header.tsx` - Fixed logout redirect and added login button
+- `frontend/src/components/ProtectedRoute.tsx` (Created) - Route protection component
+- `frontend/src/App.tsx` - Wrapped protected routes with ProtectedRoute, removed FirstVisitRedirect
+
+**Code Reference:**
+```typescript
+// frontend/src/components/ProtectedRoute.tsx
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+// frontend/src/App.tsx - Protected routes
+<Route
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <Outlet />
+      </Layout>
+    </ProtectedRoute>
+  }
+>
+  {/* All protected routes here */}
+</Route>
+
+// frontend/src/components/layout/Header.tsx - Login button
+{user ? (
+  <div>
+    <span>{user.displayName}</span>
+    <button onClick={handleLogout}>Logout</button>
+  </div>
+) : (
+  <Link to="/login">Login</Link>
+)}
+```
+
+**Impact:**
+- Users are properly redirected to login page after logout
+- Login button is always visible when not authenticated
+- Protected routes (dashboard, puzzles, history, stats) are no longer accessible without authentication
+- Both local-only guests and authenticated users can access the app
+- Unauthenticated users are automatically redirected to login when trying to access protected routes
+
+**To Document:**
+- Add to README.md under "Security" section
+- Update GETTING_STARTED.md with authentication flow
+
+---
+
+### 5. Puzzle Themes & Openings Implementation
 
 **Status:** ✅ Implemented, Committed, Needs Deployment
 
@@ -187,7 +324,7 @@ async getOpenings(): Promise<{ name: string; count: number }[]> {
 
 ---
 
-### 4. Puzzle Import Script Improvements
+### 6. Puzzle Import Script Improvements
 
 **Status:** ✅ Updated, Committed, Pushed
 
@@ -232,10 +369,12 @@ async getOpenings(): Promise<{ name: string; count: number }[]> {
 
 The following changes are committed to `main` branch but **NOT YET DEPLOYED** to production:
 
-1. ✅ First-visit redirect feature
-2. ✅ Guest stats bug fix
-3. ✅ Puzzle themes/openings implementation
-4. ✅ Puzzle import script improvements
+1. ❌ First-visit redirect feature - REMOVED (replaced by ProtectedRoute)
+2. ✅ Guest stats bug fix (StatsPage)
+3. ⏳ Guest history bug fix (HistoryPage) - Ready to commit
+4. ⏳ Authentication & route protection fixes - Ready to commit
+5. ✅ Puzzle themes/openings implementation
+6. ✅ Puzzle import script improvements
 
 ### How to Deploy
 
@@ -357,9 +496,12 @@ sudo apt-get update && sudo apt-get install -y zstd
 ## 📦 Files Modified in This Session
 
 ### Frontend Files
-- ✅ `frontend/src/components/FirstVisitRedirect.tsx` (Created)
-- ✅ `frontend/src/App.tsx` (Modified - added FirstVisitRedirect)
+- ❌ `frontend/src/components/FirstVisitRedirect.tsx` (Removed - replaced by ProtectedRoute)
+- ✅ `frontend/src/App.tsx` (Modified - removed FirstVisitRedirect, added ProtectedRoute wrapper)
 - ✅ `frontend/src/pages/StatsPage.tsx` (Modified - fixed guest stats bug)
+- ⏳ `frontend/src/pages/HistoryPage.tsx` (Modified - fixed guest history bug) - Ready to commit
+- ⏳ `frontend/src/components/layout/Header.tsx` (Modified - fixed logout redirect, added login button) - Ready to commit
+- ⏳ `frontend/src/components/ProtectedRoute.tsx` (Created - route protection component) - Ready to commit
 
 ### Backend Files
 - ✅ `backend/src/modules/puzzles/puzzles.service.ts` (Modified - implemented getThemes and getOpenings)
