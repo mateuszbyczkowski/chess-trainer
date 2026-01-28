@@ -58,12 +58,42 @@ export class PuzzlesService {
   }
 
   async getThemes(): Promise<{ name: string; count: number }[]> {
-    // TODO: Implement theme aggregation
-    return [];
+    const result = await this.puzzleRepository.query(`
+      SELECT
+        theme as name,
+        COUNT(*) as count
+      FROM (
+        SELECT UNNEST(themes) as theme
+        FROM puzzles
+      ) as themes_unnested
+      GROUP BY theme
+      ORDER BY count DESC, theme ASC
+    `);
+
+    return result.map((row) => ({
+      name: row.name,
+      count: parseInt(row.count, 10),
+    }));
   }
 
   async getOpenings(): Promise<{ name: string; count: number }[]> {
-    // TODO: Implement opening aggregation
-    return [];
+    const result = await this.puzzleRepository.query(`
+      SELECT
+        opening as name,
+        COUNT(*) as count
+      FROM (
+        SELECT UNNEST(opening_tags) as opening
+        FROM puzzles
+        WHERE opening_tags IS NOT NULL
+        AND array_length(opening_tags, 1) > 0
+      ) as openings_unnested
+      GROUP BY opening
+      ORDER BY count DESC, opening ASC
+    `);
+
+    return result.map((row) => ({
+      name: row.name,
+      count: parseInt(row.count, 10),
+    }));
   }
 }
