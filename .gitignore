@@ -95,6 +95,9 @@ temp/
 .dockerignore
 
 # Puzzle data (large files)
+lichess_db_puzzle.csv
+lichess_db_puzzle.csv.zst
+*.csv.zst
 data/lichess_db_puzzle.csv
 data/lichess_db_puzzle.csv.zst
 data/*.csv
