@@ -137,12 +137,47 @@ export const guestStorage = {
       }
     }
 
+    // Calculate date-based stats
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(today);
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+
+    let solvedToday = 0;
+    let solvedThisWeek = 0;
+    let solvedThisMonth = 0;
+    let totalTimeSpent = 0;
+
+    for (const attempt of attempts) {
+      if (attempt.solved) {
+        const attemptDate = new Date(attempt.attemptedAt);
+        if (attemptDate >= today) {
+          solvedToday++;
+        }
+        if (attemptDate >= weekAgo) {
+          solvedThisWeek++;
+        }
+        if (attemptDate >= monthAgo) {
+          solvedThisMonth++;
+        }
+      }
+      totalTimeSpent += attempt.timeSpent;
+    }
+
+    const averageTimeSeconds = totalAttempts > 0 ? Math.round(totalTimeSpent / totalAttempts) : 0;
+
     return {
       totalAttempts,
       totalSolved,
       successRate,
       currentStreak,
       longestStreak,
+      solvedToday,
+      solvedThisWeek,
+      solvedThisMonth,
+      averageTimeSeconds,
     };
   },
 

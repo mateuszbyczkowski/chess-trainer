@@ -290,12 +290,12 @@ export const statsApi = {
         totalAttempts: stats.totalAttempts,
         totalSolved: stats.totalSolved,
         accuracy: stats.successRate,
-        averageTimeSeconds: 0, // Not calculated for guests yet
+        averageTimeSeconds: stats.averageTimeSeconds,
         currentStreak: stats.currentStreak,
         longestStreak: stats.longestStreak,
-        solvedToday: 0, // Not calculated for guests yet
-        solvedThisWeek: 0, // Not calculated for guests yet
-        solvedThisMonth: 0, // Not calculated for guests yet
+        solvedToday: stats.solvedToday,
+        solvedThisWeek: stats.solvedThisWeek,
+        solvedThisMonth: stats.solvedThisMonth,
       };
     }
 

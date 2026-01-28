@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { PuzzleAttempt } from "@entities/index";
+import { CreateAttemptDto } from "./dto/create-attempt.dto";
 
 @Injectable()
 export class AttemptsService {
@@ -10,8 +11,15 @@ export class AttemptsService {
     private readonly attemptRepository: Repository<PuzzleAttempt>,
   ) {}
 
-  async create(data: Partial<PuzzleAttempt>): Promise<PuzzleAttempt> {
-    const attempt = this.attemptRepository.create(data);
+  async create(userId: string, dto: CreateAttemptDto): Promise<PuzzleAttempt> {
+    // Map DTO fields to entity fields
+    const attempt = this.attemptRepository.create({
+      userId,
+      puzzleId: dto.puzzleId,
+      solved: dto.solved,
+      timeSpentSeconds: dto.timeSpent,
+      moves: dto.movesMade.split(" ").filter((m) => m.length > 0),
+    });
     return this.attemptRepository.save(attempt);
   }
 
