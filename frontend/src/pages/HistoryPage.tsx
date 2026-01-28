@@ -109,7 +109,7 @@ export function HistoryPage() {
                 {attempts.map((attempt, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4 text-sm text-gray-600">
-                        {formatDate(attempt.createdAt)}
+                        {formatDate(attempt.attemptedAt)}
                       </td>
                       <td className="py-3 px-4 text-sm font-mono">
                         {attempt.puzzleId.substring(0, 8)}...
@@ -125,9 +125,9 @@ export function HistoryPage() {
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-sm">{formatTime(attempt.timeSpent)}</td>
+                      <td className="py-3 px-4 text-sm">{formatTime(attempt.timeSpentSeconds)}</td>
                       <td className="py-3 px-4 text-sm text-gray-600">
-                        {attempt.movesMade.split(' ').length} moves
+                        {attempt.moves.length} moves
                       </td>
                       <td className="py-3 px-4">
                         <Link

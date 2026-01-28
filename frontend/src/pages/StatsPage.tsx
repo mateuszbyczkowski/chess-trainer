@@ -6,8 +6,8 @@ import { statsApi } from '@services/api';
 interface Stats {
   totalAttempts: number;
   totalSolved: number;
-  successRate: number;
-  averageTime: number;
+  accuracy: number;
+  averageTimeSeconds: number;
   currentStreak: number;
 }
 
@@ -16,8 +16,8 @@ export function StatsPage() {
   const [stats, setStats] = useState<Stats>({
     totalAttempts: 0,
     totalSolved: 0,
-    successRate: 0,
-    averageTime: 0,
+    accuracy: 0,
+    averageTimeSeconds: 0,
     currentStreak: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -34,8 +34,8 @@ export function StatsPage() {
         setStats({
           totalAttempts: userStats.totalAttempts,
           totalSolved: userStats.totalSolved,
-          successRate: userStats.successRate,
-          averageTime: 0, // Not tracked yet
+          accuracy: userStats.accuracy,
+          averageTimeSeconds: userStats.averageTimeSeconds,
           currentStreak: userStats.currentStreak,
         });
       } catch (err) {
@@ -119,12 +119,12 @@ export function StatsPage() {
 
             <div className="card">
               <h3 className="text-gray-500 text-sm mb-2">Overall Accuracy</h3>
-              <p className="text-3xl font-bold">{stats.successRate.toFixed(1)}%</p>
+              <p className="text-3xl font-bold">{stats.accuracy.toFixed(1)}%</p>
             </div>
 
             <div className="card">
               <h3 className="text-gray-500 text-sm mb-2">Avg Time</h3>
-              <p className="text-3xl font-bold">{formatTime(stats.averageTime)}</p>
+              <p className="text-3xl font-bold">{formatTime(stats.averageTimeSeconds)}</p>
             </div>
 
             <div className="card">

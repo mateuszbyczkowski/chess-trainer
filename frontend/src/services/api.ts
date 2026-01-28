@@ -94,18 +94,21 @@ export interface PuzzleAttempt {
   userId: string;
   puzzleId: string;
   solved: boolean;
-  timeSpent: number;
-  movesMade: string;
-  createdAt: string;
+  timeSpentSeconds: number;
+  moves: string[];
+  attemptedAt: string;
 }
 
 export interface UserStats {
   totalAttempts: number;
   totalSolved: number;
-  averageRating: number;
-  successRate: number;
+  accuracy: number;
+  averageTimeSeconds: number;
   currentStreak: number;
   longestStreak: number;
+  solvedToday: number;
+  solvedThisWeek: number;
+  solvedThisMonth: number;
 }
 
 // Auth API

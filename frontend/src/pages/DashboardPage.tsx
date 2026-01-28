@@ -31,10 +31,13 @@ export function DashboardPage() {
         setStats({
           totalAttempts: 0,
           totalSolved: 0,
-          averageRating: 0,
-          successRate: 0,
+          accuracy: 0,
+          averageTimeSeconds: 0,
           currentStreak: 0,
           longestStreak: 0,
+          solvedToday: 0,
+          solvedThisWeek: 0,
+          solvedThisMonth: 0,
         });
       } finally {
         setIsLoading(false);
@@ -79,7 +82,7 @@ export function DashboardPage() {
             <p className="text-3xl font-bold text-gray-400">...</p>
           ) : (
             <p className="text-3xl font-bold">
-              {stats?.successRate ? `${Math.round(stats.successRate)}%` : '0%'}
+              {stats?.accuracy ? `${Math.round(stats.accuracy)}%` : '0%'}
             </p>
           )}
         </div>
