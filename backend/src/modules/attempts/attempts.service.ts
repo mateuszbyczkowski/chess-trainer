@@ -25,16 +25,29 @@ export class AttemptsService {
 
   async findByUser(
     userId: string,
-    limit = 50,
-    offset = 0,
-  ): Promise<PuzzleAttempt[]> {
-    return this.attemptRepository.find({
+    page = 1,
+    limit = 20,
+  ): Promise<{
+    data: PuzzleAttempt[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const offset = (page - 1) * limit;
+
+    const [data, total] = await this.attemptRepository.findAndCount({
       where: { userId },
-      relations: ["puzzle"],
       order: { attemptedAt: "DESC" },
       take: limit,
       skip: offset,
     });
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findByPuzzle(

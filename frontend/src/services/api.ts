@@ -169,12 +169,12 @@ export const puzzlesApi = {
   },
 
   getThemes: async (): Promise<{ name: string; count: number }[]> => {
-    const { data } = await apiClient.get('/puzzles/themes');
+    const { data } = await apiClient.get('/puzzles/categories/themes');
     return data;
   },
 
   getOpenings: async (): Promise<{ name: string; count: number }[]> => {
-    const { data } = await apiClient.get('/puzzles/openings');
+    const { data } = await apiClient.get('/puzzles/categories/openings');
     return data;
   },
 };

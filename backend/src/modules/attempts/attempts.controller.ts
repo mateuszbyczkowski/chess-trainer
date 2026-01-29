@@ -34,10 +34,10 @@ export class AttemptsController {
   @ApiBearerAuth()
   async getHistory(
     @Req() req: Request,
-    @Query("limit", new DefaultValuePipe(50), ParseIntPipe) limit: number,
-    @Query("offset", new DefaultValuePipe(0), ParseIntPipe) offset: number,
+    @Query("limit", new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
   ) {
     const user = req.user as User;
-    return this.attemptsService.findByUser(user.id, limit, offset);
+    return this.attemptsService.findByUser(user.id, page, limit);
   }
 }

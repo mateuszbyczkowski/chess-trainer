@@ -22,8 +22,8 @@ export class StatsService {
 
     const avgTime = await this.attemptRepository
       .createQueryBuilder("attempt")
-      .select("AVG(attempt.timeSpentSeconds)", "avg")
-      .where("attempt.userId = :userId", { userId })
+      .select("AVG(attempt.time_spent_seconds)", "avg")
+      .where("attempt.user_id = :userId", { userId })
       .getRawOne();
 
     // Get all attempts sorted by date for streak and date-based calculations
@@ -89,7 +89,7 @@ export class StatsService {
       totalSolved,
       totalAttempts,
       accuracy: parseFloat(accuracy.toFixed(2)),
-      averageTimeSeconds: parseInt(avgTime?.avg || 0),
+      averageTimeSeconds: avgTime?.avg ? Math.round(parseFloat(avgTime.avg)) : 0,
       currentStreak,
       longestStreak,
       solvedToday,
