@@ -75,7 +75,12 @@ export const guestStorage = {
     if (!data) return [];
 
     try {
-      return JSON.parse(data);
+      const attempts = JSON.parse(data);
+      // Normalize attempts to ensure moves is always an array
+      return attempts.map((attempt: any) => ({
+        ...attempt,
+        moves: Array.isArray(attempt.moves) ? attempt.moves : [],
+      }));
     } catch (error) {
       console.error('Failed to parse guest attempts:', error);
       return [];
@@ -88,11 +93,23 @@ export const guestStorage = {
   saveAttempt(attempt: Omit<GuestAttempt, 'id' | 'attemptedAt'>): GuestAttempt {
     const attempts = this.getAttempts();
 
+    // Ensure moves is an array
+    const moves = Array.isArray(attempt.moves) ? attempt.moves : [];
+
     const newAttempt: GuestAttempt = {
       id: `attempt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       ...attempt,
+      moves,
       attemptedAt: new Date().toISOString(),
     };
+
+    console.log('[guestStorage] Saving attempt:', {
+      puzzleId: newAttempt.puzzleId,
+      solved: newAttempt.solved,
+      timeSpent: newAttempt.timeSpent,
+      movesCount: newAttempt.moves.length,
+      moves: newAttempt.moves,
+    });
 
     attempts.push(newAttempt);
     localStorage.setItem(STORAGE_KEYS.ATTEMPTS, JSON.stringify(attempts));

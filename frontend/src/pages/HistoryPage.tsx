@@ -127,7 +127,7 @@ export function HistoryPage() {
                       </td>
                       <td className="py-3 px-4 text-sm">{formatTime(attempt.timeSpentSeconds)}</td>
                       <td className="py-3 px-4 text-sm text-gray-600">
-                        {attempt.moves.length} moves
+                        {attempt.moves?.length || 0} moves
                       </td>
                       <td className="py-3 px-4">
                         <Link
