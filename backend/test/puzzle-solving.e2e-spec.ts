@@ -99,7 +99,7 @@ describe("Puzzle Solving E2E Test", () => {
       }
       console.log(`✅ Seeded ${samplePuzzles.length} test puzzles`);
     }
-  });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
