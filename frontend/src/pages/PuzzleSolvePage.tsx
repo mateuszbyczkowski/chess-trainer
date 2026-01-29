@@ -4,6 +4,7 @@ import { Chessboard } from 'react-chessboard';
 import { Chess, Square } from 'chess.js';
 import { puzzlesApi, attemptsApi, Puzzle } from '@services/api';
 import { useAuth } from '@contexts/AuthContext';
+import { guestStorage } from '@services/guestStorage';
 
 type PuzzleMode = 'random' | 'daily' | 'specific' | 'theme' | 'opening';
 
@@ -343,17 +344,14 @@ export function PuzzleSolvePage() {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-      // For guests, save to localStorage
+      // For guests, save to localStorage using guestStorage service
       if (user.isGuest) {
-        const guestAttempts = JSON.parse(localStorage.getItem('guestAttempts') || '[]');
-        guestAttempts.push({
+        guestStorage.saveAttempt({
           puzzleId: puzzle.id,
           solved,
           timeSpent: elapsedTime,
-          movesMade: moveHistory.join(' '),
-          timestamp: new Date().toISOString(),
+          moves: moveHistory,
         });
-        localStorage.setItem('guestAttempts', JSON.stringify(guestAttempts));
       } else {
         // For authenticated users, save to backend
         await attemptsApi.submit(
