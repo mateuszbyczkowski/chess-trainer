@@ -169,6 +169,7 @@ jobs:
           host: ${{ secrets.MIKR_US_HOST }}
           username: ${{ secrets.MIKR_US_USER }}
           key: ${{ secrets.MIKR_US_SSH_KEY }}
+          port: ${{ secrets.MIKR_US_SSH_PORT }}
           source: "backend/dist,backend/package.json,backend/package-lock.json"
           target: "/var/www/chess-trainer"
 
@@ -178,6 +179,7 @@ jobs:
           host: ${{ secrets.MIKR_US_HOST }}
           username: ${{ secrets.MIKR_US_USER }}
           key: ${{ secrets.MIKR_US_SSH_KEY }}
+          port: ${{ secrets.MIKR_US_SSH_PORT }}
           source: "frontend/dist"
           target: "/var/www/chess-trainer"
 
@@ -187,6 +189,7 @@ jobs:
           host: ${{ secrets.MIKR_US_HOST }}
           username: ${{ secrets.MIKR_US_USER }}
           key: ${{ secrets.MIKR_US_SSH_KEY }}
+          port: ${{ secrets.MIKR_US_SSH_PORT }}
           script: |
             cd /var/www/chess-trainer/backend
             npm ci --production
@@ -197,6 +200,7 @@ jobs:
           host: ${{ secrets.MIKR_US_HOST }}
           username: ${{ secrets.MIKR_US_USER }}
           key: ${{ secrets.MIKR_US_SSH_KEY }}
+          port: ${{ secrets.MIKR_US_SSH_PORT }}
           script: |
             cd /var/www/chess-trainer/backend
             npm run migration:run
@@ -207,6 +211,7 @@ jobs:
           host: ${{ secrets.MIKR_US_HOST }}
           username: ${{ secrets.MIKR_US_USER }}
           key: ${{ secrets.MIKR_US_SSH_KEY }}
+          port: ${{ secrets.MIKR_US_SSH_PORT }}
           script: |
             pm2 restart chess-trainer-api || pm2 start /var/www/chess-trainer/backend/dist/main.js --name chess-trainer-api
             pm2 save
