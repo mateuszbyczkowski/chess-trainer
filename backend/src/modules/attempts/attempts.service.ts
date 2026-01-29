@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { PuzzleAttempt } from "@entities/index";
 import { CreateAttemptDto } from "./dto/create-attempt.dto";
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class AttemptsService {
@@ -14,6 +15,7 @@ export class AttemptsService {
   async create(userId: string, dto: CreateAttemptDto): Promise<PuzzleAttempt> {
     // Map DTO fields to entity fields
     const attempt = this.attemptRepository.create({
+      id: uuidv4(),
       userId,
       puzzleId: dto.puzzleId,
       solved: dto.solved,
@@ -37,6 +39,7 @@ export class AttemptsService {
 
     const [data, total] = await this.attemptRepository.findAndCount({
       where: { userId },
+      relations: ["puzzle"],
       order: { attemptedAt: "DESC" },
       take: limit,
       skip: offset,

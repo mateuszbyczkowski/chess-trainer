@@ -159,15 +159,16 @@ describe("Puzzle Solving E2E Test", () => {
 
     // Step 4: Verify the attempt was saved by fetching user's attempt history
     const historyResponse = await request(app.getHttpServer())
-      .get("/api/attempts/history?limit=50&offset=0")
+      .get("/api/attempts/history?limit=50&page=1")
       .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
 
-    expect(Array.isArray(historyResponse.body)).toBe(true);
-    expect(historyResponse.body.length).toBeGreaterThan(0);
+    expect(historyResponse.body).toHaveProperty("data");
+    expect(Array.isArray(historyResponse.body.data)).toBe(true);
+    expect(historyResponse.body.data.length).toBeGreaterThan(0);
 
     // Find the attempt we just created
-    const savedAttempt = historyResponse.body.find(
+    const savedAttempt = historyResponse.body.data.find(
       (attempt: AttemptResponse) => attempt.id === attemptId,
     );
 
