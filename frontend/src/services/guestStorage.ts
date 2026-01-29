@@ -106,6 +106,14 @@ export const guestStorage = {
   getStats() {
     const attempts = this.getAttempts();
 
+    // Debug logging
+    console.log('[guestStorage] Getting stats for', attempts.length, 'attempts');
+    if (attempts.length > 0) {
+      console.log('[guestStorage] Sample attempt:', attempts[0]);
+      const timesSpent = attempts.map(a => a.timeSpent);
+      console.log('[guestStorage] Time spent values:', timesSpent);
+    }
+
     const totalAttempts = attempts.length;
     const totalSolved = attempts.filter(a => a.solved).length;
     const successRate = totalAttempts > 0 ? (totalSolved / totalAttempts) * 100 : 0;
@@ -163,10 +171,18 @@ export const guestStorage = {
           solvedThisMonth++;
         }
       }
-      totalTimeSpent += attempt.timeSpent;
+      // Ensure timeSpent is a valid number
+      const timeSpent = Number(attempt.timeSpent) || 0;
+      totalTimeSpent += timeSpent;
     }
 
     const averageTimeSeconds = totalAttempts > 0 ? Math.round(totalTimeSpent / totalAttempts) : 0;
+
+    console.log('[guestStorage] Stats calculated:', {
+      totalAttempts,
+      totalTimeSpent,
+      averageTimeSeconds,
+    });
 
     return {
       totalAttempts,
