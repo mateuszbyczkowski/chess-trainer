@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { TrainingSession, SessionPuzzle } from "@entities/index";
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class SessionsService {
@@ -17,6 +18,7 @@ export class SessionsService {
     data: Partial<TrainingSession>,
   ): Promise<TrainingSession> {
     const session = this.sessionRepository.create({
+      id: uuidv4(),
       userId,
       ...data,
     });

@@ -1,6 +1,6 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   ManyToOne,
@@ -17,7 +17,7 @@ import { SessionPuzzle } from "./session-puzzle.entity";
 @Index("idx_sessions_is_active", ["isActive"])
 @Index("idx_sessions_started_at", ["startedAt"])
 export class TrainingSession {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column({ name: "user_id", type: "uuid" })

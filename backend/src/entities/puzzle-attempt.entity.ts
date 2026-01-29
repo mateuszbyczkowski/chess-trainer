@@ -1,6 +1,6 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   ManyToOne,
@@ -18,7 +18,7 @@ import { TrainingSession } from "./training-session.entity";
 @Index("idx_attempts_attempted_at", ["attemptedAt"])
 @Index("idx_attempts_user_solved", ["userId", "solved"])
 export class PuzzleAttempt {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column({ name: "user_id", type: "uuid" })
