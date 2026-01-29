@@ -18,6 +18,15 @@ export interface GuestUser {
   isGuest: true;
 }
 
+interface RawGuestAttempt {
+  id: string;
+  puzzleId: string;
+  solved: boolean;
+  moves: unknown;
+  timeSpent: number;
+  attemptedAt: string;
+}
+
 export const STORAGE_KEYS = {
   ATTEMPTS: 'chess_trainer_guest_attempts',
   USER: 'chess_trainer_guest_user',
@@ -77,7 +86,7 @@ export const guestStorage = {
     try {
       const attempts = JSON.parse(data);
       // Normalize attempts to ensure moves is always an array
-      return attempts.map((attempt: any) => ({
+      return attempts.map((attempt: RawGuestAttempt): GuestAttempt => ({
         ...attempt,
         moves: Array.isArray(attempt.moves) ? attempt.moves : [],
       }));
