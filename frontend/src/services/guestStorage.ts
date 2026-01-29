@@ -18,7 +18,7 @@ export interface GuestUser {
   isGuest: true;
 }
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   ATTEMPTS: 'chess_trainer_guest_attempts',
   USER: 'chess_trainer_guest_user',
   WARNING_DISMISSED: 'guestWarningDismissed',
@@ -205,5 +205,19 @@ export const guestStorage = {
       attempts: this.getAttempts(),
       stats: this.getStats(),
     };
+  },
+
+  /**
+   * Check if guest warning has been dismissed
+   */
+  isWarningDismissed(): boolean {
+    return localStorage.getItem(STORAGE_KEYS.WARNING_DISMISSED) === 'true';
+  },
+
+  /**
+   * Mark guest warning as dismissed
+   */
+  dismissWarning(): void {
+    localStorage.setItem(STORAGE_KEYS.WARNING_DISMISSED, 'true');
   },
 };

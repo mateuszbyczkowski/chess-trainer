@@ -1,10 +1,11 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
+import { guestStorage } from '@services/guestStorage';
 
 export function GuestWarningBanner() {
   const { user, login } = useAuth();
   const [dismissed, setDismissed] = useState(() => {
-    return localStorage.getItem('guestWarningDismissed') === 'true';
+    return guestStorage.isWarningDismissed();
   });
 
   if (!user?.isGuest || dismissed) {
@@ -12,7 +13,7 @@ export function GuestWarningBanner() {
   }
 
   const handleDismiss = () => {
-    localStorage.setItem('guestWarningDismissed', 'true');
+    guestStorage.dismissWarning();
     setDismissed(true);
   };
 
