@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (type: 'guest' | 'lichess' | 'google') => Promise<void>;
   logout: () => Promise<void>;
+  setAuthenticatedUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -86,6 +87,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setAuthenticatedUser = (user: User) => {
+    setUser(user);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -94,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         logout,
+        setAuthenticatedUser,
       }}
     >
       {children}

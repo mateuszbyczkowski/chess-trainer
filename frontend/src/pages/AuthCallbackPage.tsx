@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '@services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function AuthCallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const { setAuthenticatedUser } = useAuth();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -31,6 +33,9 @@ export function AuthCallbackPage() {
         // Store user in localStorage
         localStorage.setItem('user', JSON.stringify(user));
 
+        // Update AuthContext state
+        setAuthenticatedUser(user);
+
         // Redirect to dashboard
         navigate('/dashboard', { replace: true });
       } catch (err) {
@@ -45,7 +50,7 @@ export function AuthCallbackPage() {
     };
 
     handleCallback();
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, setAuthenticatedUser]);
 
   if (error) {
     return (
