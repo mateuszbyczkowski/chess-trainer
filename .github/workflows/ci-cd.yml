@@ -170,7 +170,7 @@ jobs:
           username: ${{ secrets.MIKR_US_USER }}
           key: ${{ secrets.MIKR_US_SSH_KEY }}
           port: ${{ secrets.MIKR_US_SSH_PORT }}
-          source: "backend/dist,backend/package.json,backend/package-lock.json"
+          source: "backend/dist,backend/src/migrations,backend/src/config,backend/package.json,backend/package-lock.json"
           target: "/var/www/chess-trainer"
 
       - name: Deploy frontend to mikr.us
