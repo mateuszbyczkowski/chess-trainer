@@ -67,8 +67,12 @@ export interface User {
   id: string;
   displayName: string;
   lichessId?: string | null;
+  lichessUsername?: string | null;
   googleId?: string | null;
   isGuest: boolean;
+  lichessRating?: number | null;
+  lichessRatingSyncedAt?: string | null;
+  ratingSource?: 'lichess' | 'manual' | null;
 }
 
 export interface AuthResponse {
@@ -346,6 +350,24 @@ export const statsApi = {
 
     // For authenticated users, fetch from backend
     const { data } = await apiClient.get('/stats/rating-progress');
+    return data;
+  },
+};
+
+// Users API
+export const usersApi = {
+  getProfile: async (): Promise<User> => {
+    const { data } = await apiClient.get<User>('/users/profile');
+    return data;
+  },
+
+  syncLichessRating: async (): Promise<User> => {
+    const { data } = await apiClient.post<User>('/users/sync-lichess-rating');
+    return data;
+  },
+
+  updateManualRating: async (rating: number): Promise<User> => {
+    const { data } = await apiClient.patch<User>('/users/manual-rating', { rating });
     return data;
   },
 };

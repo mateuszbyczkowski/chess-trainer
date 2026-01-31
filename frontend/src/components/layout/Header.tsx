@@ -35,6 +35,9 @@ export function Header() {
             <Link to="/stats" className="header-nav-link">
               Stats
             </Link>
+            <Link to="/profile" className="header-nav-link">
+              Profile
+            </Link>
 
             {user ? (
               <div className="flex items-center space-x-4 ml-4 pl-4 border-l-2 border-gray-200">

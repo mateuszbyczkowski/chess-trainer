@@ -14,6 +14,7 @@ interface LichessProfile {
   rapidRating?: number;
   avatar?: string;
   rating?: number;
+  ratingSource?: 'lichess' | 'manual';
 }
 
 interface GoogleProfile {
@@ -53,7 +54,10 @@ export class AuthService {
       where: { lichessId: profile.id },
     });
 
+    const now = new Date();
+
     if (!user) {
+      // Create new user with rating
       user = this.userRepository.create({
         id: uuidv4(), // Generate UUID in application
         lichessId: profile.id,
@@ -61,12 +65,19 @@ export class AuthService {
         displayName: profile.username,
         avatarUrl: profile.avatar || null,
         lichessRating: profile.rating || null,
+        lichessRatingSyncedAt: profile.rating ? now : null,
+        ratingSource: profile.ratingSource || 'lichess',
         isGuest: false,
       });
-      await this.userRepository.save(user);
+    } else {
+      // Update existing user's rating on every login
+      user.lichessRating = profile.rating || null;
+      user.lichessRatingSyncedAt = profile.rating ? now : null;
+      user.ratingSource = profile.ratingSource || 'lichess';
+      user.lichessUsername = profile.username;
     }
 
-    return user;
+    return this.userRepository.save(user);
   }
 
   async findOrCreateGoogleUser(profile: GoogleProfile): Promise<User> {

@@ -14,6 +14,7 @@ import { PuzzleSolvePage } from '@pages/PuzzleSolvePage';
 import { CategoriesPage } from '@pages/CategoriesPage';
 import { HistoryPage } from '@pages/HistoryPage';
 import { StatsPage } from '@pages/StatsPage';
+import { ProfilePage } from '@pages/ProfilePage';
 
 // Components
 import { Layout } from '@components/layout/Layout';
@@ -91,6 +92,10 @@ function App() {
               name: 'stats',
               list: '/stats',
             },
+            {
+              name: 'profile',
+              list: '/profile',
+            },
           ]}
           options={{
             syncWithLocation: true,
@@ -122,6 +127,7 @@ function App() {
               </Route>
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/stats" element={<StatsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Routes>
 

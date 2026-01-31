@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards, Req } from "@nestjs/common";
+import { Controller, Get, Patch, Post, Body, UseGuards, Req } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
@@ -23,5 +23,24 @@ export class UsersController {
   async updateProfile(@Req() req: Request, @Body() data: Partial<User>) {
     const user = req.user as User;
     return this.usersService.update(user.id, data);
+  }
+
+  @Post("sync-lichess-rating")
+  @UseGuards(AuthGuard("jwt"))
+  @ApiBearerAuth()
+  async syncLichessRating(@Req() req: Request) {
+    const user = req.user as User;
+    return this.usersService.syncLichessRating(user.id);
+  }
+
+  @Patch("manual-rating")
+  @UseGuards(AuthGuard("jwt"))
+  @ApiBearerAuth()
+  async updateManualRating(
+    @Req() req: Request,
+    @Body() body: { rating: number }
+  ) {
+    const user = req.user as User;
+    return this.usersService.updateManualRating(user.id, body.rating);
   }
 }

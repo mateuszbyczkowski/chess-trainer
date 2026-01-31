@@ -65,6 +65,18 @@ export function PuzzleSolvePage() {
 
   // Fetch puzzle
   useEffect(() => {
+    // Helper to get rating range for puzzle filtering
+    const getRatingRange = () => {
+      if (!user || user.isGuest || !user.lichessRating) {
+        return {}; // No filter for guests or users without rating
+      }
+
+      return {
+        minRating: user.lichessRating - 300,
+        maxRating: user.lichessRating + 300,
+      };
+    };
+
     const fetchPuzzle = async () => {
       try {
         setIsLoading(true);
@@ -84,16 +96,19 @@ export function PuzzleSolvePage() {
         setStartTime(Date.now());
         setElapsedTime(0);
 
+        const ratingRange = getRatingRange();
+
         let puzzleData: Puzzle;
         if (mode === 'daily') {
+          // Daily puzzles don't use rating filter
           puzzleData = await puzzlesApi.getDaily();
         } else if (mode === 'random') {
-          puzzleData = await puzzlesApi.getRandom();
+          puzzleData = await puzzlesApi.getRandom(ratingRange);
         } else if (mode === 'theme' && theme) {
-          puzzleData = await puzzlesApi.getRandom({ themes: [theme] });
+          puzzleData = await puzzlesApi.getRandom({ themes: [theme], ...ratingRange });
         } else if (mode === 'opening' && opening) {
           // TODO: Add opening filter to API once backend supports it
-          puzzleData = await puzzlesApi.getRandom();
+          puzzleData = await puzzlesApi.getRandom(ratingRange);
         } else if (id) {
           puzzleData = await puzzlesApi.getById(id);
         } else {
@@ -637,6 +652,22 @@ export function PuzzleSolvePage() {
                 <span className="text-gray-500">Time:</span>
                 <span className="font-medium">{formatTime(elapsedTime)}</span>
               </div>
+              {user && !user.isGuest && user.lichessRating && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Your Rating:</span>
+                    <span className="font-medium">{user.lichessRating}</span>
+                  </div>
+                  {mode !== 'daily' && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Difficulty Range:</span>
+                      <span className="font-medium text-xs">
+                        {user.lichessRating - 300} - {user.lichessRating + 300}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
               {puzzle.openingTags && puzzle.openingTags.length > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-500">Opening:</span>

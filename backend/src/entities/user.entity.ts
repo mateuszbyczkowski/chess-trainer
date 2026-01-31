@@ -59,6 +59,14 @@ export class User {
   })
   lichessRatingSyncedAt: Date | null;
 
+  @Column({
+    name: "rating_source",
+    type: "varchar",
+    length: 20,
+    nullable: true,
+  })
+  ratingSource: 'lichess' | 'manual' | null;
+
   @Column({ name: "is_guest", type: "boolean", default: false })
   isGuest: boolean;
 

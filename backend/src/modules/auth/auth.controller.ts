@@ -134,14 +134,24 @@ export class AuthController {
 
       const lichessUser = await userResponse.json();
 
+      // Extract ratings with fallback priority: rapid > blitz > bullet > classical
+      const ratings = {
+        rapid: lichessUser.perfs?.rapid?.rating,
+        blitz: lichessUser.perfs?.blitz?.rating,
+        bullet: lichessUser.perfs?.bullet?.rating,
+        classical: lichessUser.perfs?.classical?.rating,
+      };
+
+      const selectedRating = ratings.rapid || ratings.blitz || ratings.bullet || ratings.classical || null;
+
       // Transform to our user format
       const lichessProfile = {
         id: lichessUser.id,
         username: lichessUser.username,
         email: lichessUser.email,
         displayName: lichessUser.username,
-        blitzRating: lichessUser.perfs?.blitz?.rating,
-        rapidRating: lichessUser.perfs?.rapid?.rating,
+        rating: selectedRating,
+        ratingSource: 'lichess' as const,
       };
 
       // Find or create user

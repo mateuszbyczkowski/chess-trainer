@@ -16,6 +16,8 @@ export interface GuestUser {
   id: string;
   displayName: string;
   isGuest: true;
+  lichessRating?: number | null;
+  ratingSource?: 'manual' | null;
 }
 
 interface RawGuestAttempt {
@@ -261,5 +263,35 @@ export const guestStorage = {
    */
   dismissWarning(): void {
     localStorage.setItem(STORAGE_KEYS.WARNING_DISMISSED, 'true');
+  },
+
+  /**
+   * Update guest user rating
+   */
+  updateGuestRating(rating: number): GuestUser {
+    const user = this.getGuestUser();
+    if (!user) {
+      throw new Error('No guest user found');
+    }
+
+    const updatedUser: GuestUser = {
+      ...user,
+      lichessRating: rating,
+      ratingSource: 'manual',
+    };
+
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+    // Also update the main 'user' key used by the app
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+
+    return updatedUser;
+  },
+
+  /**
+   * Get guest rating
+   */
+  getGuestRating(): number | null {
+    const user = this.getGuestUser();
+    return user?.lichessRating ?? null;
   },
 };
