@@ -203,7 +203,7 @@ export function PuzzleSolvePage() {
     };
 
     fetchPuzzle();
-  }, [mode, id, theme, opening, puzzleKey]);
+  }, [mode, id, theme, opening, puzzleKey, user]);
 
   const handleSquareClick = (square: Square) => {
     if (status !== 'playing' || autoPlayingOpponent) return;

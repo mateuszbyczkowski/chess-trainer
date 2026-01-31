@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@contexts/AuthContext';
 import { usersApi } from '@services/api';
 import { guestStorage } from '@services/guestStorage';
+import axios from 'axios';
 
 export function ProfilePage() {
   const { user, setAuthenticatedUser } = useAuth();
@@ -30,8 +31,12 @@ export function ProfilePage() {
 
       // Auto-hide success message after 3 seconds
       setTimeout(() => setSyncSuccess(false), 3000);
-    } catch (error: any) {
-      setSyncError(error.response?.data?.message || 'Failed to sync rating');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setSyncError(error.response?.data?.message || 'Failed to sync rating');
+      } else {
+        setSyncError('Failed to sync rating');
+      }
     } finally {
       setIsSyncing(false);
     }
@@ -68,8 +73,12 @@ export function ProfilePage() {
 
       // Auto-hide success message after 3 seconds
       setTimeout(() => setManualSuccess(false), 3000);
-    } catch (error: any) {
-      setManualError(error.response?.data?.message || 'Failed to save rating');
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setManualError(error.response?.data?.message || 'Failed to save rating');
+      } else {
+        setManualError('Failed to save rating');
+      }
     } finally {
       setIsSavingManual(false);
     }
@@ -251,7 +260,7 @@ export function ProfilePage() {
               </p>
               <p className="text-sm text-blue-600 mt-1">
                 Your rating helps us recommend puzzles at the right difficulty level (±300 rating points).
-                If you don't know your rating, try taking a few puzzles first, then come back and set it based on how you performed.
+                If you don&apos;t know your rating, try taking a few puzzles first, then come back and set it based on how you performed.
               </p>
             </div>
 
