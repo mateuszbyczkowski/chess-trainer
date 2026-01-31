@@ -66,7 +66,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="card">
           <h3 className="text-gray-500 mb-2">Puzzles Solved</h3>
           {isLoading ? (
@@ -95,6 +95,25 @@ export function DashboardPage() {
             <p className="text-3xl font-bold">
               {stats?.currentStreak || 0} {stats?.currentStreak === 1 ? 'day' : 'days'}
             </p>
+          )}
+        </div>
+
+        <div className="card">
+          <h3 className="text-gray-500 mb-2">Your Rating</h3>
+          {user?.lichessRating ? (
+            <div>
+              <p className="text-3xl font-bold">{user.lichessRating}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {user.ratingSource === 'lichess' ? 'Lichess synced' : 'Manually set'}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-2xl font-bold text-gray-400">Not set</p>
+              <Link to="/profile" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
+                Set rating →
+              </Link>
+            </div>
           )}
         </div>
       </div>
